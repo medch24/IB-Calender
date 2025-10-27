@@ -82,8 +82,8 @@ app.delete('/api/evaluations/:id', async (req, res) => {
 });
 
 
-// Servir les fichiers statiques du dossier Public (pour les déploiements locaux/non-Vercel)
-app.use(express.static(path.join(__dirname, 'Public')));
+// Servir les fichiers statiques du dossier public (pour les déploiements locaux/non-Vercel)
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Démarrage du serveur (uniquement si non déployé comme fonction Vercel)
