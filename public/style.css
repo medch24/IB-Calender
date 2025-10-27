@@ -45,78 +45,19 @@ body{
   padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; font-weight:600; min-width:140px
 }
 
-/* ===== Bouton Générer Word professionnel ===== */
+/* ===== Bouton Générer Word ===== */
 .btn-word{
   background: linear-gradient(135deg, var(--word-btn) 0%, #2563a8 100%);
-  color:#fff;
-  border:none;
-  padding:10px 20px;
-  border-radius:10px;
-  font-weight:700;
-  font-size:14px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  box-shadow:0 4px 12px rgba(43,87,154,.3), 0 2px 4px rgba(0,0,0,.1);
-  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position:relative;
-  overflow:hidden;
-}
-.btn-word::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;bottom:0;
-  background:linear-gradient(135deg, rgba(255,255,255,.2) 0%, transparent 100%);
-  opacity:0;
-  transition:opacity 0.3s ease;
+  color:#fff; border:none; padding:10px 20px; border-radius:10px;
+  font-weight:700; font-size:14px; cursor:pointer;
+  display:flex; align-items:center; gap:8px;
+  box-shadow:0 4px 12px rgba(43,87,154,.3);
+  transition:all 0.3s ease;
 }
 .btn-word:hover{
   background:linear-gradient(135deg, var(--word-btn-hover) 0%, #1e4889 100%);
-  box-shadow:0 6px 20px rgba(43,87,154,.4), 0 4px 8px rgba(0,0,0,.15);
   transform:translateY(-2px);
-}
-.btn-word:hover::before{opacity:1}
-.btn-word:active{
-  transform:translateY(0);
-  box-shadow:0 2px 8px rgba(43,87,154,.3);
-}
-.btn-word svg{
-  width:20px;
-  height:20px;
-  stroke-width:2.5;
-}
-
-/* ===== Bouton Ajouter Évaluation ===== */
-.btn-add-eval{
-  width:100%;
-  padding:12px 16px;
-  margin:10px 0;
-  border:2px dashed var(--orange);
-  background:transparent;
-  color:var(--orange-700);
-  border-radius:10px;
-  font-weight:700;
-  font-size:14px;
-  cursor:pointer;
-  transition:all 0.2s ease;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-}
-.btn-add-eval:hover{
-  background:rgba(255,159,64,.08);
-  border-color:var(--orange-700);
-  transform:translateY(-1px);
-}
-.btn-add-eval:active{
-  transform:translateY(0);
-}
-.btn-add-eval.active{
-  background:var(--orange);
-  color:#fff;
-  border-style:solid;
+  box-shadow:0 6px 20px rgba(43,87,154,.4);
 }
 
 /* ===== En-tête secondaire (bande info) ===== */
@@ -195,11 +136,6 @@ td{border:none; background:transparent; padding:0}
 /* Formulaire d'ajout (boîte) */
 .box{
   background:#fff; border:2px dashed var(--orange); padding:12px; border-radius:12px; margin-top:10px;
-  animation:slideDown .3s ease;
-}
-@keyframes slideDown{
-  from{opacity:0; transform:translateY(-10px) scale(0.95)}
-  to{opacity:1; transform:translateY(0) scale(1)}
 }
 .ttl{ color:var(--orange-700); font-weight:800; text-align:center; margin-bottom:8px }
 label{ display:block; font-weight:800; color:var(--blue); font-size:12px; margin:6px 0 2px }
@@ -208,10 +144,8 @@ select,input{ width:100%; padding:8px 10px; border:1px solid #cfd6e6; border-rad
   width:100%; padding:10px 12px; margin-top:10px; border:none; border-radius:10px;
   background:var(--orange); color:#fff; font-weight:900; cursor:pointer;
   box-shadow:0 8px 20px -12px rgba(255,159,64,.65);
-  transition:all 0.2s ease;
 }
-.cta:hover{ filter:brightness(.97); transform:translateY(-1px) }
-.cta:active{ transform:translateY(0) }
+.cta:hover{ filter:brightness(.97) }
 
 /* Petites utilitaires */
 .center{text-align:center}
