@@ -18,7 +18,7 @@ const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URL;
 if (!MONGODB_URI) {
   console.error("❌ Erreur critique : la variable d'environnement MONGODB_URI (ou MONGO_URL) n'est pas définie.");
   console.error("💡 Assure-toi de l’avoir ajoutée dans Vercel → Settings → Environment Variables.");
-  process.exit(1);
+  // process.exit(1); // Commenté pour permettre le mode dégradé
 }
 
 // ✅ Connexion à MongoDB avec options recommandées
@@ -29,7 +29,7 @@ mongoose.connect(MONGODB_URI, {
 .then(() => console.log('✅ Connexion à MongoDB réussie.'))
 .catch(err => {
   console.error('❌ Erreur de connexion à MongoDB :', err.message);
-  process.exit(1);
+  // process.exit(1); // Commenté pour permettre le mode dégradé
 });
 
 // Schéma de l'Évaluation
