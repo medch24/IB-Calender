@@ -16,9 +16,9 @@ function createEvaluationChip(eval) {
   div.dataset.id = eval._id;
   div.innerHTML = `
     <button class="del" title="Supprimer" data-id="${eval._id}">✖</button>
-    <p><strong>Matière:</strong> ${escapeHtml(eval.matiere)}</p>
-    <p><strong>Unité:</strong> ${escapeHtml(eval.unite)}</p>
-    <p><strong>Critère:</strong> ${escapeHtml(eval.critere)}</p>
+    <p><strong>📖 Matière:</strong> ${escapeHtml(eval.matiere)}</p>
+    <p><strong>📑 Unité:</strong> ${escapeHtml(eval.unite)}</p>
+    <p><strong>⭐ Critère:</strong> ${escapeHtml(eval.critere)}</p>
   `;
   return div;
 }
@@ -95,11 +95,11 @@ async function addEvaluation(e, cellId) {
     }
 
     form.reset();
-    alert('Évaluation enregistrée avec succès!');
+    alert('✅ Évaluation enregistrée avec succès dans MongoDB!');
 
   } catch (error) {
     console.error("Erreur:", error);
-    alert('Échec de l\'enregistrement. Vérifiez que le serveur est démarré.');
+    alert('❌ Échec de l\'enregistrement. Vérifiez que le serveur est démarré et MongoDB est connecté.');
   }
 }
 
@@ -128,7 +128,7 @@ document.addEventListener('click', async (ev) => {
 
   } catch (error) {
     console.error("Erreur:", error);
-    alert('Échec de la suppression.');
+    alert('❌ Échec de la suppression.');
   }
 });
 
@@ -142,7 +142,7 @@ async function generateWordDocument() {
     const evaluations = await response.json();
 
     if (evaluations.length === 0) {
-      alert('Aucune évaluation pour cette classe.');
+      alert('⚠️ Aucune évaluation pour cette classe. Veuillez d\'abord enregistrer des évaluations.');
       return;
     }
 
@@ -177,11 +177,11 @@ async function generateWordDocument() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    alert('Document généré! Ouvrez-le avec Word pour le convertir en .docx');
+    alert('📄 Document généré avec succès! Ouvrez-le avec Microsoft Word pour le convertir en .docx');
 
   } catch (error) {
     console.error("Erreur:", error);
-    alert('Erreur lors de la génération.');
+    alert('❌ Erreur lors de la génération du document.');
   }
 }
 
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Changement de classe
   sel.addEventListener('change', () => {
     const nouvelleClasse = sel.value;
-    lbl.innerHTML = '<strong>Classe :</strong> ' + nouvelleClasse;
+    lbl.innerHTML = '<strong>🎓 Classe :</strong> ' + nouvelleClasse;
     loadEvaluations(nouvelleClasse);
   });
 

@@ -3,180 +3,22 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Calendrier des Évaluations – KIS (PEI/DP)</title>
-  <style>
-    :root{
-      --blue:#1a3c8e;          /* Bleu IB modernisé */
-      --blue-600:#143173;
-      --orange:#ff9f40;        /* Orange doux (CTA) */
-      --orange-700:#f08a22;
-      --grey-bg:#f5f6fa;       /* Fond appli */
-      --line:#d8dce6;          /* Traits */
-      --vac:#fff6c9;           /* Jaune vacances */
-      --exam:#dff4e3;          /* Vert exam */
-      --month:#ffe0c2;         /* Bande mois */
-      --card:#ffffff;          /* Fond cartes */
-      --eval-chip:#e9f7ee;     /* Pastille ajout */
-      --eval-border:#2e7d32;
-      --danger:#e74c3c;
-      --text:#2e2e2e;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;background:var(--grey-bg);color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji",sans-serif;
-    }
-
-    /* ===== Barre supérieure fixe ===== */
-    .topbar{
-      position:sticky; top:0; z-index:50;
-      background:#fff; border-bottom:1px solid var(--line);
-      display:flex; align-items:center; gap:14px; padding:10px 16px;
-      box-shadow:0 6px 16px -14px rgba(0,0,0,.35);
-    }
-    .brand{display:flex; align-items:center; gap:10px}
-    .brand img{width:36px;height:36px;object-fit:contain}
-    .brand h1{margin:0; font-size:18px; color:var(--blue); letter-spacing:.2px}
-    .spacer{flex:1}
-    .controls{display:flex; gap:10px; align-items:center}
-    .pill{
-      background:var(--blue); color:#fff; padding:8px 12px; border-radius:999px;
-      font-weight:600; box-shadow:0 6px 16px -12px rgba(26,60,142,.6);
-      display:flex; align-items:center; gap:8px; white-space:nowrap;
-    }
-    .controls label{font-weight:600; color:var(--blue)}
-    .controls select{
-      padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:#fff; font-weight:600; min-width:140px
-    }
-
-    /* ===== Bouton Générer Word ===== */
-    .btn-word{
-      background: linear-gradient(135deg, #2b579a 0%, #2563a8 100%);
-      color:#fff; border:none; padding:10px 20px; border-radius:10px;
-      font-weight:700; font-size:14px; cursor:pointer;
-      display:flex; align-items:center; gap:8px;
-      box-shadow:0 4px 12px rgba(43,87,154,.3);
-      transition:all 0.3s ease;
-    }
-    .btn-word:hover{
-      background:linear-gradient(135deg, #1e4075 0%, #1e4889 100%);
-      transform:translateY(-2px);
-      box-shadow:0 6px 20px rgba(43,87,154,.4);
-    }
-
-    /* ===== En-tête secondaire (bande info) ===== */
-    .infobar{
-      margin:16px auto 0; padding:12px 16px; width:min(1400px, calc(100% - 24px));
-      background:#fff; border:1px solid var(--line); border-radius:12px;
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      box-shadow:0 10px 24px -18px rgba(0,0,0,.35);
-    }
-    .infobar b{color:var(--blue)}
-    .legend{margin-left:auto; display:flex; gap:12px; align-items:center; flex-wrap:wrap}
-    .tag{display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#444}
-    .dot{width:14px;height:14px;border-radius:4px;border:1px solid #bfc7d6;display:inline-block}
-    .dot-or{background:var(--month)}
-    .dot-vac{background:var(--vac)}
-    .dot-ex{background:var(--exam)}
-    .dot-ev{background:#f3f5fb}
-
-    /* ===== Tableau : espaces entre semaines/mois via border-spacing ===== */
-    .board-wrap{
-      margin:16px auto 40px; width:min(1400px, calc(100% - 24px));
-      overflow-x:auto; padding:8px;
-    }
-    table{
-      width:100%; border-collapse:separate; border-spacing:14px 12px; /* ESPACES entre cellules */
-    }
-    thead th{
-      background:#fff; color:#000; text-align:left;
-      padding:10px 12px; border-radius:10px; border:1px solid var(--line);
-    }
-    .head-top th{ background:#ffedd9; font-weight:800; color:#5b3200 }
-    .head-bottom th{ background:#fff6ea; font-weight:700 }
-
-    /* Colonne Mois verticale (carte collante à gauche du bloc) */
-    .month{
-      background:var(--month); color:var(--blue); writing-mode:vertical-rl; text-orientation:mixed;
-      width:56px; min-width:56px; text-align:center; font-weight:800; padding:12px 8px; border-radius:12px;
-      box-shadow:0 12px 28px -18px rgba(0,0,0,.28);
-      border:1px solid var(--line);
-    }
-
-    /* Cartes "semaines" : td > .card */
-    td{border:none; background:transparent; padding:0}
-    .card{
-      position:relative; background:var(--card); border:1px solid var(--line);
-      border-radius:14px; padding:12px; min-height:140px;
-      box-shadow:0 18px 34px -26px rgba(0,0,0,.45);
-      transition:transform .18s ease, box-shadow .18s ease;
-    }
-    .card:hover{ transform:translateY(-2px); box-shadow:0 20px 40px -24px rgba(0,0,0,.5) }
-
-    /* Variantes */
-    .orientation .card{ background:#ffffff }
-    .vac .card{ background:var(--vac) }
-    .exam .card{ background:var(--exam); text-align:center; font-weight:800; color:var(--blue-600) }
-
-    /* Titres "Semaine X:" en bleu souligné + période */
-    .wtitle{ color:var(--blue); font-weight:800; text-decoration:underline; display:block; margin-bottom:3px }
-    .wrange{ color:#1a1a1a; display:block; margin-bottom:8px; font-weight:600 }
-
-    /* Évaluations enregistrées (chip verte) */
-    .planned{
-      position:relative;
-      background:var(--eval-chip); border-left:6px solid var(--eval-border);
-      padding:10px 36px 10px 10px; border-radius:10px; margin:10px 0; 
-      animation:fadeIn .2s ease;
-    }
-    .planned p{ margin:2px 0; color:#1f5d2a; font-weight:700 }
-    .del{
-      position:absolute; top:6px; right:6px; width:26px; height:26px; border-radius:6px;
-      border:none; cursor:pointer; background:#fff; color:var(--danger); font-weight:900;
-      box-shadow:0 6px 18px -12px rgba(0,0,0,.5); transition:transform .12s ease, background .12s ease;
-    }
-    .del:hover{ transform:scale(1.05); background:#ffeceb }
-
-    /* Formulaire d’ajout (boîte) */
-    .box{
-      background:#fff; border:2px dashed var(--orange); padding:12px; border-radius:12px; margin-top:10px;
-    }
-    .ttl{ color:var(--orange-700); font-weight:800; text-align:center; margin-bottom:8px }
-    label{ display:block; font-weight:800; color:var(--blue); font-size:12px; margin:6px 0 2px }
-    select,input{ width:100%; padding:8px 10px; border:1px solid #cfd6e6; border-radius:8px; background:#fff }
-    .cta{
-      width:100%; padding:10px 12px; margin-top:10px; border:none; border-radius:10px;
-      background:var(--orange); color:#fff; font-weight:900; cursor:pointer;
-      box-shadow:0 8px 20px -12px rgba(255,159,64,.65);
-    }
-    .cta:hover{ filter:brightness(.97) }
-
-    /* Petites utilitaires */
-    .center{text-align:center}
-
-    /* Animations */
-    @keyframes fadeIn{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
-    .fade-out{ opacity:0 !important; transform:translateY(6px) !important; transition:opacity .16s ease, transform .16s ease }
-
-    /* Responsive */
-    @media (max-width: 900px){
-      .legend{width:100%; justify-content:flex-start; margin-top:8px}
-      .controls{width:100%; justify-content:flex-end}
-    }
-  </style>
+  <title>📅 Calendrier des Évaluations – KIS (PEI/DP)</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" type="image/x-icon">
+  
 </head>
 <body>
   <!-- ===== Barre supérieure fixe ===== -->
   <div class="topbar">
     <div class="brand">
       <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="Alkawthar Logo" />
-      <h1>Calendrier des Évaluations – KIS</h1>
+      <h1>📚 Calendrier des Évaluations – KIS</h1>
     </div>
     <div class="spacer"></div>
     <div class="controls">
-      <span class="pill" id="lblClasse"><strong>Classe :</strong> PEI1</span>
-      <label for="classe">Changer :</label>
+      <span class="pill" id="lblClasse"><strong>🎓 Classe :</strong> PEI1</span>
+      <label for="classe">🔄 Changer :</label>
       <select id="classe">
         <option>PEI1</option><option>PEI2</option><option>PEI3</option>
         <option>PEI4</option><option>PEI5</option><option>DP1</option><option>DP2</option>
@@ -195,13 +37,13 @@
 
   <!-- ===== Bande info + légende ===== -->
   <div class="infobar">
-    <span><b>Année scolaire :</b> 2025–2026</span>
-    <span><b>Planification :</b> Évaluations critériées</span>
+    <span><b>📆 Année scolaire :</b> 2025–2026</span>
+    <span><b>📋 Planification :</b> Évaluations critériées</span>
     <div class="legend">
-      <span class="tag"><i class="dot dot-or"></i> Orientation / Mois</span>
-      <span class="tag"><i class="dot dot-vac"></i> Vacances (incl. Eid)</span>
-      <span class="tag"><i class="dot dot-ex"></i> Examens finaux</span>
-      <span class="tag"><i class="dot dot-ev"></i> Semaine évaluable</span>
+      <span class="tag"><i class="dot dot-or"></i> 🗓️ Orientation / Mois</span>
+      <span class="tag"><i class="dot dot-vac"></i> 🏖️ Vacances (incl. Eid)</span>
+      <span class="tag"><i class="dot dot-ex"></i> 📝 Examens finaux</span>
+      <span class="tag"><i class="dot dot-ev"></i> ✏️ Semaine évaluable</span>
     </div>
   </div>
 
@@ -222,43 +64,43 @@
       </thead>
       <tbody>
         <tr>
-          <td class="orientation"><div class="card center" style="min-height:140px;display:flex;align-items:center;justify-content:center;font-weight:900">Orientation</div></td>
+          <td class="orientation"><div class="card center" style="min-height:200px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px">🎯 Orientation</div></td>
 
           <td class="eval"><div class="card" id="S2">
-            <span class="wtitle">Semaine 2:</span><span class="wrange">Sep. 07 – Sep. 11</span>
+            <span class="wtitle">Semaine 2</span><span class="wrange">Sep. 07 – Sep. 11</span>
             <div class="box">
               <div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S2')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" type="text" placeholder="Nom de l'unité ou Thème" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" type="text" placeholder="Nom de l'unité ou Thème" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S3">
-            <span class="wtitle">Semaine 3:</span><span class="wrange">Sep. 14 – Sep. 18</span>
+            <span class="wtitle">Semaine 3</span><span class="wrange">Sep. 14 – Sep. 18</span>
             <div class="box">
               <div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S3')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" type="text" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" type="text" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S4">
-            <span class="wtitle">Semaine 4:</span><span class="wrange">Sep. 21 – Sep. 25</span>
+            <span class="wtitle">Semaine 4</span><span class="wrange">Sep. 21 – Sep. 25</span>
             <div class="box">
               <div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S4')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" type="text" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" type="text" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
@@ -280,49 +122,49 @@
       <tbody>
         <tr>
           <td class="eval"><div class="card" id="S5">
-            <span class="wtitle">Semaine 5:</span><span class="wrange">Sep. 28 – Oct. 02</span>
+            <span class="wtitle">Semaine 5</span><span class="wrange">Sep. 28 – Oct. 02</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S5')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S6">
-            <span class="wtitle">Semaine 6:</span><span class="wrange">Oct. 05 – Oct. 09</span>
+            <span class="wtitle">Semaine 6</span><span class="wrange">Oct. 05 – Oct. 09</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S6')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S7">
-            <span class="wtitle">Semaine 7:</span><span class="wrange">Oct. 12 – Oct. 16</span>
+            <span class="wtitle">Semaine 7</span><span class="wrange">Oct. 12 – Oct. 16</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S7')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S8">
-            <span class="wtitle">Semaine 8:</span><span class="wrange">Oct. 19 – Oct. 23</span>
+            <span class="wtitle">Semaine 8</span><span class="wrange">Oct. 19 – Oct. 23</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S8')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
@@ -344,49 +186,49 @@
       <tbody>
         <tr>
           <td class="eval"><div class="card" id="S9">
-            <span class="wtitle">Semaine 9:</span><span class="wrange">Oct. 26 – Oct. 30</span>
+            <span class="wtitle">Semaine 9</span><span class="wrange">Oct. 26 – Oct. 30</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S9')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S10">
-            <span class="wtitle">Semaine 10:</span><span class="wrange">Nov. 02 – Nov. 06</span>
+            <span class="wtitle">Semaine 10</span><span class="wrange">Nov. 02 – Nov. 06</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S10')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S11">
-            <span class="wtitle">Semaine 11:</span><span class="wrange">Nov. 09 – Nov. 13</span>
+            <span class="wtitle">Semaine 11</span><span class="wrange">Nov. 09 – Nov. 13</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S11')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S12">
-            <span class="wtitle">Semaine 12:</span><span class="wrange">Nov. 16 – Nov. 20</span>
+            <span class="wtitle">Semaine 12</span><span class="wrange">Nov. 16 – Nov. 20</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S12')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
@@ -407,40 +249,40 @@
       </thead>
       <tbody>
         <tr>
-          <td class="vac"><div class="card center">Vacances</div></td>
+          <td class="vac"><div class="card center">🏖️ Vacances</div></td>
 
           <td class="eval"><div class="card" id="S13">
-            <span class="wtitle">Semaine 13:</span><span class="wrange">Nov. 30 – Dec. 4</span>
+            <span class="wtitle">Semaine 13</span><span class="wrange">Nov. 30 – Dec. 4</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S13')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S14">
-            <span class="wtitle">Semaine 14:</span><span class="wrange">Dec. 7 – Dec. 11</span>
+            <span class="wtitle">Semaine 14</span><span class="wrange">Dec. 7 – Dec. 11</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S14')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
 
           <td class="eval"><div class="card" id="S15">
-            <span class="wtitle">Semaine 15:</span><span class="wrange">Dec. 14 – Dec. 18</span>
+            <span class="wtitle">Semaine 15</span><span class="wrange">Dec. 14 – Dec. 18</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div>
               <form onsubmit="addEvaluation(event,'S15')">
-                <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-                <label>Unité/Thème:</label><input name="unite" required/>
-                <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-                <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button>
+                <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+                <label>📑 Unité/Thème:</label><input name="unite" required/>
+                <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button>
               </form>
             </div>
           </div></td>
@@ -461,10 +303,10 @@
       </thead>
       <tbody>
         <tr>
-          <td class="exam"><div class="card center">Dec. 24<br/>Examen final</div></td>
-          <td class="exam"><div class="card center">Examen final</div></td>
-          <td class="exam"><div class="card center">Examen final</div></td>
-          <td class="vac"><div class="card center">Vacances</div></td>
+          <td class="exam"><div class="card center">📝 Dec. 24<br/>Examen Final</div></td>
+          <td class="exam"><div class="card center">📝 Examen Final</div></td>
+          <td class="exam"><div class="card center">📝 Examen Final</div></td>
+          <td class="vac"><div class="card center">🏖️ Vacances</div></td>
         </tr>
       </tbody>
 
@@ -483,36 +325,36 @@
       <tbody>
         <tr>
           <td class="eval"><div class="card" id="S19">
-            <span class="wtitle">Semaine 19:</span><span class="wrange">Jan. 18 – Jan. 22</span>
+            <span class="wtitle">Semaine 19</span><span class="wrange">Jan. 18 – Jan. 22</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S19')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
           <td class="eval"><div class="card" id="S20">
-            <span class="wtitle">Semaine 20:</span><span class="wrange">Jan. 25 – Jan. 29</span>
+            <span class="wtitle">Semaine 20</span><span class="wrange">Jan. 25 – Jan. 29</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S20')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
           <td class="eval"><div class="card" id="S21">
-            <span class="wtitle">Semaine 21:</span><span class="wrange">Fev. 01 – Fev. 05</span>
+            <span class="wtitle">Semaine 21</span><span class="wrange">Fev. 01 – Fev. 05</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S21')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
           <td class="eval"><div class="card" id="S22">
-            <span class="wtitle">Semaine 22:</span><span class="wrange">Fev. 08 – Fev. 12</span>
+            <span class="wtitle">Semaine 22</span><span class="wrange">Fev. 08 – Fev. 12</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S22')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
         </tr>
       </tbody>
@@ -532,33 +374,33 @@
       <tbody>
         <tr>
           <td class="eval"><div class="card" id="S23">
-            <span class="wtitle">Semaine 23:</span><span class="wrange">Fev. 15 – Fev. 19</span>
+            <span class="wtitle">Semaine 23</span><span class="wrange">Fev. 15 – Fev. 19</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S23')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/><label>Critère:</label>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/><label>⭐ Critère:</label>
               <select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
 
           <td class="eval"><div class="card" id="S24">
-            <span class="wtitle">Semaine 24:</span><span class="wrange">Fev. 22 – Fev. 26</span>
+            <span class="wtitle">Semaine 24</span><span class="wrange">Fev. 22 – Fev. 26</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S24')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/><label>Critère:</label>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/><label>⭐ Critère:</label>
               <select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
 
           <td class="eval"><div class="card" id="S25">
-            <span class="wtitle">Semaine 25:</span><span class="wrange">Mars 01 – Mars 05</span>
+            <span class="wtitle">Semaine 25</span><span class="wrange">Mars 01 – Mars 05</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S25')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/><label>Critère:</label>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/><label>⭐ Critère:</label>
               <select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
 
-          <td class="vac"><div class="card center">Vacances Eid-ul-Fitr</div></td>
+          <td class="vac"><div class="card center">🌙 Vacances Eid-ul-Fitr</div></td>
         </tr>
       </tbody>
 
@@ -576,29 +418,29 @@
       </thead>
       <tbody>
         <tr>
-          <td class="vac"><div class="card center">Vacances Eid-ul-Fitr</div></td>
-          <td class="vac"><div class="card center">Vacances Eid-ul-Fitr</div></td>
+          <td class="vac"><div class="card center">🌙 Vacances Eid-ul-Fitr</div></td>
+          <td class="vac"><div class="card center">🌙 Vacances Eid-ul-Fitr</div></td>
 
           <td class="eval"><div class="card" id="S26">
-            <span class="wtitle">Semaine 26:</span><span class="wrange">Mars 29 – Avril 02</span>
+            <span class="wtitle">Semaine 26</span><span class="wrange">Mars 29 – Avril 02</span>
             <div class="planned">
               <button class="del" title="Supprimer">✖</button>
               <p>1er Avril – Évaluations</p>
             </div>
             <div class="box"><div class="ttl">Ajouter une Évaluation</div><form onsubmit="addEvaluation(event,'S26')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/><label>Critère:</label>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/><label>⭐ Critère:</label>
               <select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
 
           <td class="eval"><div class="card" id="S27">
-            <span class="wtitle">Semaine 27:</span><span class="wrange">Avril 05 – Avril 09</span>
+            <span class="wtitle">Semaine 27</span><span class="wrange">Avril 05 – Avril 09</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S27')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/><label>Critère:</label>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/><label>⭐ Critère:</label>
               <select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
         </tr>
       </tbody>
@@ -617,33 +459,33 @@
       </thead>
       <tbody>
         <tr>
-          <td class="orientation"><div class="card center">Evaluations</div></td>
+          <td class="orientation"><div class="card center">✅ Évaluations</div></td>
 
           <td class="eval"><div class="card" id="S29">
-            <span class="wtitle">Semaine 29:</span><span class="wrange">April 19 – April 23</span>
+            <span class="wtitle">Semaine 29</span><span class="wrange">April 19 – April 23</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S29')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
 
           <td class="eval"><div class="card" id="S30">
-            <span class="wtitle">Semaine 30:</span><span class="wrange">April 26 – April 30</span>
+            <span class="wtitle">Semaine 30</span><span class="wrange">April 26 – April 30</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S30')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
 
           <td class="eval"><div class="card" id="S31">
-            <span class="wtitle">Semaine 31:</span><span class="wrange">Mai 03 – Mai 07</span>
+            <span class="wtitle">Semaine 31</span><span class="wrange">Mai 03 – Mai 07</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S31')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
         </tr>
       </tbody>
@@ -663,16 +505,16 @@
       <tbody>
         <tr>
           <td class="eval"><div class="card" id="S32">
-            <span class="wtitle">Semaine 32:</span><span class="wrange">Mai 10 – May 14</span>
+            <span class="wtitle">Semaine 32</span><span class="wrange">Mai 10 – May 14</span>
             <div class="box"><div class="ttl">Évaluation Critériée</div><form onsubmit="addEvaluation(event,'S32')">
-              <label>Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
-              <label>Unité/Thème:</label><input name="unite" required/>
-              <label>Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
-              <button class="cta">Enregistrer et Ajouter une Autre Évaluation</button></form></div>
+              <label>📖 Matière:</label><select name="matiere" required><option value="">-- Choisir --</option><option>Français LL</option><option>Anglais AL</option><option>Mathématiques</option><option>Sciences</option><option>IS</option><option>Arts</option><option>Design</option></select>
+              <label>📑 Unité/Thème:</label><input name="unite" required/>
+              <label>⭐ Critère:</label><select name="critere" required><option value="">Choisir</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+              <button class="cta">💾 Enregistrer et Ajouter une Autre Évaluation</button></form></div>
           </div></td>
-          <td class="vac"><div class="card center">Vacances Eid-ul-Adha</div></td>
-          <td class="vac"><div class="card center">Vacances Eid-ul-Adha</div></td>
-          <td class="vac"><div class="card center">Vacances Eid-ul-Adha</div></td>
+          <td class="vac"><div class="card center">🕌 Vacances Eid-ul-Adha</div></td>
+          <td class="vac"><div class="card center">🕌 Vacances Eid-ul-Adha</div></td>
+          <td class="vac"><div class="card center">🕌 Vacances Eid-ul-Adha</div></td>
         </tr>
       </tbody>
 
@@ -687,8 +529,8 @@
       <tbody>
         <tr>
           <td></td>
-          <td class="exam"><div class="card center">Examen Final</div></td>
-          <td class="exam"><div class="card center">Examen Final</div></td>
+          <td class="exam"><div class="card center">📝 Examen Final</div></td>
+          <td class="exam"><div class="card center">📝 Examen Final</div></td>
         </tr>
       </tbody>
     </table>
