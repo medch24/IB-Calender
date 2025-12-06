@@ -1,140 +1,96 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>📅 Calendrier des Évaluations – KIS</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendrier des Évaluations - KIS</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" href="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK">
 </head>
 <body>
-  <!-- HEADER MODERNE -->
-  <header class="header">
-    <div class="header-container">
-      <div class="logo-section">
-        <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="KIS" class="logo" />
-        <div class="title-section">
-          <h1>Calendrier des Évaluations</h1>
-          <p>Kawthar International School</p>
-        </div>
+  <div class="app-container">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="logo-container">
+        <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="KIS Logo" class="school-logo">
       </div>
-      <div class="controls">
-        <div class="control-group">
-          <label>🎓 Classe</label>
-          <select id="selectClasse">
-            <option>PEI1</option>
-            <option>PEI2</option>
-            <option>PEI3</option>
-            <option>PEI4</option>
-            <option>PEI5</option>
-            <option>DP1</option>
-            <option>DP2</option>
+      <h1 class="app-title">Calendrier des Évaluations</h1>
+      <p class="school-name">Kawthar International School</p>
+      
+      <div class="header-controls">
+        <div class="control-item">
+          <label class="control-label">🎓 Classe</label>
+          <select id="classeSelect" class="select-classe">
+            <option value="PEI1">PEI1</option>
+            <option value="PEI2">PEI2</option>
+            <option value="PEI3">PEI3</option>
+            <option value="PEI4">PEI4</option>
+            <option value="PEI5">PEI5</option>
+            <option value="DP1">DP1</option>
+            <option value="DP2">DP2</option>
           </select>
         </div>
-        <button id="btnExport" class="btn-export">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          Exporter
-        </button>
+        <button id="btnExport" class="export-btn">📄 Exporter</button>
       </div>
-    </div>
-  </header>
+      
+      <div class="info-bar">
+        <span><strong>📆 Année:</strong> 2025–2026</span>
+        <span><strong>Orientation:</strong> Vacances</span>
+        <span><strong>Examens:</strong> Évaluations</span>
+      </div>
+    </header>
 
-  <!-- TABS NAVIGATION -->
-  <nav class="tabs-nav">
-    <button class="tab-item active" data-filter="all">
-      <span class="tab-icon">📊</span>
-      <span class="tab-text">Toutes les Matières</span>
-    </button>
-    <button class="tab-item" data-filter="Français LL">
-      <span class="tab-icon">🇫🇷</span>
-      <span class="tab-text">Français LL</span>
-    </button>
-    <button class="tab-item" data-filter="Anglais AL">
-      <span class="tab-icon">🇬🇧</span>
-      <span class="tab-text">Anglais AL</span>
-    </button>
-    <button class="tab-item" data-filter="Mathématiques">
-      <span class="tab-icon">📐</span>
-      <span class="tab-text">Mathématiques</span>
-    </button>
-    <button class="tab-item" data-filter="Sciences">
-      <span class="tab-icon">🔬</span>
-      <span class="tab-text">Sciences</span>
-    </button>
-    <button class="tab-item" data-filter="IS">
-      <span class="tab-icon">🌍</span>
-      <span class="tab-text">IS</span>
-    </button>
-    <button class="tab-item" data-filter="Arts">
-      <span class="tab-icon">🎨</span>
-      <span class="tab-text">Arts</span>
-    </button>
-    <button class="tab-item" data-filter="Design">
-      <span class="tab-icon">💡</span>
-      <span class="tab-text">Design</span>
-    </button>
-  </nav>
+    <!-- NAVIGATION TABS -->
+    <nav class="tabs-navigation">
+      <button class="nav-tab active" data-matiere="all">📊 Toutes les Matières</button>
+      <button class="nav-tab" data-matiere="Français LL">🇫🇷 Français LL</button>
+      <button class="nav-tab" data-matiere="Anglais AL">🇬🇧 Anglais AL</button>
+      <button class="nav-tab" data-matiere="Mathématiques">📐 Mathématiques</button>
+      <button class="nav-tab" data-matiere="Sciences">🔬 Sciences</button>
+      <button class="nav-tab" data-matiere="IS">🌍 IS</button>
+      <button class="nav-tab" data-matiere="Arts">🎨 Arts</button>
+      <button class="nav-tab" data-matiere="Design">💡 Design</button>
+    </nav>
 
-  <!-- STATISTIQUES -->
-  <div class="stats-container" id="statsContainer"></div>
-
-  <!-- LÉGENDE -->
-  <div class="legend-bar">
-    <span><b>📆 Année:</b> 2025–2026</span>
-    <div class="legend-items">
-      <span class="legend-item"><span class="dot dot-orientation"></span> Orientation</span>
-      <span class="legend-item"><span class="dot dot-vacation"></span> Vacances</span>
-      <span class="legend-item"><span class="dot dot-exam"></span> Examens</span>
-      <span class="legend-item"><span class="dot dot-eval"></span> Évaluations</span>
-    </div>
+    <!-- MAIN CONTENT -->
+    <main class="main-calendar" id="calendarContent">
+      <!-- Le contenu sera généré par JavaScript -->
+    </main>
   </div>
-
-  <!-- TABLEAU PRINCIPAL -->
-  <main class="main-content">
-    <div class="table-container">
-      <table class="calendar-table" id="calendarTable">
-        <!-- Le contenu sera généré par JavaScript -->
-      </table>
-    </div>
-  </main>
 
   <!-- MODAL EXPORT -->
-  <div class="modal-overlay" id="modalExport">
-    <div class="modal-box">
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal-content">
       <div class="modal-header">
-        <h3>📦 Options d'Export</h3>
-        <button class="modal-close" id="btnCloseModal">×</button>
+        <h2>📦 Options d'Export</h2>
+        <button class="modal-close" id="closeModal">&times;</button>
       </div>
       <div class="modal-body">
-        <button class="export-option" data-type="zip">
-          <div class="option-icon">📦</div>
-          <div class="option-content">
-            <div class="option-title">ZIP - Toutes les Matières</div>
-            <div class="option-desc">Un fichier Word par matière</div>
+        <button class="export-card" data-export="zip">
+          <div class="export-icon">📦</div>
+          <div class="export-info">
+            <h3>ZIP - Toutes les Matières</h3>
+            <p>Un fichier Word par matière</p>
           </div>
         </button>
-        <button class="export-option" data-type="matiere">
-          <div class="option-icon">📄</div>
-          <div class="option-content">
-            <div class="option-title">Matière Actuelle</div>
-            <div class="option-desc">Exporter la matière sélectionnée</div>
+        <button class="export-card" data-export="matiere">
+          <div class="export-icon">📄</div>
+          <div class="export-info">
+            <h3>Matière Actuelle</h3>
+            <p>Exporter la matière sélectionnée</p>
           </div>
         </button>
-        <button class="export-option" data-type="complet">
-          <div class="option-icon">📋</div>
-          <div class="option-content">
-            <div class="option-title">Document Complet</div>
-            <div class="option-desc">Toutes matières en un fichier</div>
+        <button class="export-card" data-export="complet">
+          <div class="export-icon">📋</div>
+          <div class="export-info">
+            <h3>Document Complet</h3>
+            <p>Toutes matières en un fichier</p>
           </div>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="/script.js"></script>
 </body>

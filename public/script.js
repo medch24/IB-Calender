@@ -1,281 +1,244 @@
-// ========== CONFIGURATION ==========
-const API_URL = '/api/evaluations';
+// ============ CONFIGURATION ============
+const API = '/api/evaluations';
 const MATIERES = ['Français LL', 'Anglais AL', 'Mathématiques', 'Sciences', 'IS', 'Arts', 'Design'];
 
-const WEEKS_DATA = [
-  { id: 'S1', title: 'Semaine 1', date: 'Août 31 – Sep. 04', type: 'orientation' },
-  { id: 'S2', title: 'Semaine 2', date: 'Sep. 07 – 11', type: 'eval' },
-  { id: 'S3', title: 'Semaine 3', date: 'Sep. 14 – 18', type: 'eval' },
-  { id: 'S4', title: 'Semaine 4', date: 'Sep. 21 – 25', type: 'eval' },
-  { id: 'S5', title: 'Semaine 5', date: 'Sep. 28 – Oct. 02', type: 'eval' },
-  { id: 'S6', title: 'Semaine 6', date: 'Oct. 05 – 09', type: 'eval' },
-  { id: 'S7', title: 'Semaine 7', date: 'Oct. 12 – 16', type: 'eval' },
-  { id: 'S8', title: 'Semaine 8', date: 'Oct. 19 – 23', type: 'eval' },
-  { id: 'S9', title: 'Semaine 9', date: 'Oct. 26 – 30', type: 'eval' },
-  { id: 'S10', title: 'Semaine 10', date: 'Nov. 02 – 06', type: 'eval' },
-  { id: 'S11', title: 'Semaine 11', date: 'Nov. 09 – 13', type: 'eval' },
-  { id: 'S12', title: 'Semaine 12', date: 'Nov. 16 – 20', type: 'eval' },
-  { id: 'S12b', title: 'Semaine 13', date: 'Nov. 23 – 27', type: 'vacation' },
-  { id: 'S13', title: 'Semaine 14', date: 'Nov. 30 – Dec. 04', type: 'eval' },
-  { id: 'S14', title: 'Semaine 15', date: 'Dec. 07 – 11', type: 'eval' },
-  { id: 'S15', title: 'Semaine 16', date: 'Dec. 14 – 18', type: 'eval' },
-  { id: 'S16', title: 'Semaine 17', date: 'Dec. 21 – 25', type: 'exam' },
-  { id: 'S17', title: 'Semaine 18', date: 'Dec. 28 – Jan. 01', type: 'exam' },
-  { id: 'S18', title: 'Semaine 19', date: 'Jan. 04 – 08', type: 'exam' },
-  { id: 'S18b', title: 'Vacances', date: 'Jan. 11 – 15', type: 'vacation' },
-  { id: 'S19', title: 'Semaine 20', date: 'Jan. 18 – 22', type: 'eval' },
-  { id: 'S20', title: 'Semaine 21', date: 'Jan. 25 – 29', type: 'eval' },
-  { id: 'S21', title: 'Semaine 22', date: 'Fev. 01 – 05', type: 'eval' },
-  { id: 'S22', title: 'Semaine 23', date: 'Fev. 08 – 12', type: 'eval' },
-  { id: 'S23', title: 'Semaine 24', date: 'Fev. 15 – 19', type: 'eval' },
-  { id: 'S24', title: 'Semaine 25', date: 'Fev. 22 – 26', type: 'eval' },
-  { id: 'S25', title: 'Semaine 26', date: 'Mars 01 – 05', type: 'eval' },
-  { id: 'S25b', title: 'Eid', date: 'Mars 08 – 12', type: 'vacation' },
-  { id: 'S25c', title: 'Eid', date: 'Mars 15 – 19', type: 'vacation' },
-  { id: 'S25d', title: 'Eid', date: 'Mars 22 – 26', type: 'vacation' },
-  { id: 'S26', title: 'Semaine 27', date: 'Mars 29 – Avril 02', type: 'eval' },
-  { id: 'S27', title: 'Semaine 28', date: 'Avril 05 – 09', type: 'eval' },
-  { id: 'S28', title: 'Évaluations', date: 'Avril 12 – 16', type: 'orientation' },
-  { id: 'S29', title: 'Semaine 29', date: 'Avril 19 – 23', type: 'eval' },
-  { id: 'S30', title: 'Semaine 30', date: 'Avril 26 – 30', type: 'eval' },
-  { id: 'S31', title: 'Semaine 31', date: 'Mai 03 – 07', type: 'eval' },
-  { id: 'S32', title: 'Semaine 32', date: 'Mai 10 – 14', type: 'eval' },
-  { id: 'S32b', title: 'Eid Adha', date: 'Mai 17 – 21', type: 'vacation' },
-  { id: 'S32c', title: 'Eid Adha', date: 'Mai 24 – 28', type: 'vacation' },
-  { id: 'S32d', title: 'Eid Adha', date: 'Mai 31 – Juin 04', type: 'vacation' },
-  { id: 'S33', title: 'Examen Final', date: 'Juin 07 – 11', type: 'exam' },
-  { id: 'S34', title: 'Examen Final', date: 'Juin 14 – 18', type: 'exam' }
+const WEEKS = [
+  // Bloc 1
+  { id: 'W1', name: 'Semaine 1', dates: 'Août 31 – Sep. 04', type: 'orientation', label: '🎯 Orientation' },
+  { id: 'W2', name: 'Semaine 2', dates: 'Sep. 07 – Sep. 11', type: 'eval' },
+  { id: 'W3', name: 'Semaine 3', dates: 'Sep. 14 – Sep. 18', type: 'eval' },
+  { id: 'W4', name: 'Semaine 4', dates: 'Sep. 21 – Sep. 25', type: 'eval' },
+  // Bloc 2
+  { id: 'W5', name: 'Semaine 5', dates: 'Sep. 28 – Oct. 02', type: 'eval' },
+  { id: 'W6', name: 'Semaine 6', dates: 'Oct. 05 – Oct. 09', type: 'eval' },
+  { id: 'W7', name: 'Semaine 7', dates: 'Oct. 12 – Oct. 16', type: 'eval' },
+  { id: 'W8', name: 'Semaine 8', dates: 'Oct. 19 – Oct. 23', type: 'eval' },
+  // Bloc 3
+  { id: 'W9', name: 'Semaine 9', dates: 'Oct. 26 – Oct. 30', type: 'eval' },
+  { id: 'W10', name: 'Semaine 10', dates: 'Nov. 02 – Nov. 06', type: 'eval' },
+  { id: 'W11', name: 'Semaine 11', dates: 'Nov. 09 – Nov. 13', type: 'eval' },
+  { id: 'W12', name: 'Semaine 12', dates: 'Nov. 16 – Nov. 20', type: 'eval' },
+  // Bloc 4
+  { id: 'W13', name: 'Vacances', dates: 'Nov. 23 – Nov. 27', type: 'vacation', label: '🏖️ Vacances' },
+  { id: 'W14', name: 'Semaine 13', dates: 'Nov. 30 – Dec. 04', type: 'eval' },
+  { id: 'W15', name: 'Semaine 14', dates: 'Dec. 07 – Dec. 11', type: 'eval' },
+  { id: 'W16', name: 'Semaine 15', dates: 'Dec. 14 – Dec. 18', type: 'eval' },
+  // Bloc 5 - Examens
+  { id: 'W17', name: 'Examen Final', dates: 'Dec. 21 – Dec. 25', type: 'exam', label: '📝 Examen Final' },
+  { id: 'W18', name: 'Examen Final', dates: 'Dec. 28 – Jan. 01', type: 'exam', label: '📝 Examen Final' },
+  { id: 'W19', name: 'Examen Final', dates: 'Jan. 04 – Jan. 08', type: 'exam', label: '📝 Examen Final' },
+  { id: 'W20', name: 'Vacances', dates: 'Jan. 11 – Jan. 15', type: 'vacation', label: '🏖️ Vacances' },
+  // Bloc 6
+  { id: 'W21', name: 'Semaine 19', dates: 'Jan. 18 – Jan. 22', type: 'eval' },
+  { id: 'W22', name: 'Semaine 20', dates: 'Jan. 25 – Jan. 29', type: 'eval' },
+  { id: 'W23', name: 'Semaine 21', dates: 'Fev. 01 – Fev. 05', type: 'eval' },
+  { id: 'W24', name: 'Semaine 22', dates: 'Fev. 08 – Fev. 12', type: 'eval' },
+  // Bloc 7
+  { id: 'W25', name: 'Semaine 23', dates: 'Fev. 15 – Fev. 19', type: 'eval' },
+  { id: 'W26', name: 'Semaine 24', dates: 'Fev. 22 – Fev. 26', type: 'eval' },
+  { id: 'W27', name: 'Semaine 25', dates: 'Mars 01 – Mars 05', type: 'eval' },
+  { id: 'W28', name: 'Eid-ul-Fitr', dates: 'Mars 08 – Mars 12', type: 'vacation', label: '🌙 Vacances Eid-ul-Fitr' },
+  // Bloc 8
+  { id: 'W29', name: 'Eid-ul-Fitr', dates: 'Mars 15 – Mars 19', type: 'vacation', label: '🌙 Vacances Eid-ul-Fitr' },
+  { id: 'W30', name: 'Eid-ul-Fitr', dates: 'Mars 22 – Mars 26', type: 'vacation', label: '🌙 Vacances Eid-ul-Fitr' },
+  { id: 'W31', name: 'Semaine 26', dates: 'Mars 29 – Avril 02', type: 'eval' },
+  { id: 'W32', name: 'Semaine 27', dates: 'Avril 05 – Avril 09', type: 'eval' },
+  // Bloc 9
+  { id: 'W33', name: 'Évaluations', dates: 'Avril 12 – Avril 16', type: 'orientation', label: '✅ Évaluations' },
+  { id: 'W34', name: 'Semaine 29', dates: 'Avril 19 – Avril 23', type: 'eval' },
+  { id: 'W35', name: 'Semaine 30', dates: 'Avril 26 – Avril 30', type: 'eval' },
+  { id: 'W36', name: 'Semaine 31', dates: 'Mai 03 – Mai 07', type: 'eval' },
+  // Bloc 10
+  { id: 'W37', name: 'Semaine 32', dates: 'Mai 10 – Mai 14', type: 'eval' },
+  { id: 'W38', name: 'Eid-ul-Adha', dates: 'Mai 17 – Mai 21', type: 'vacation', label: '🕌 Vacances Eid-ul-Adha' },
+  { id: 'W39', name: 'Eid-ul-Adha', dates: 'Mai 24 – Mai 28', type: 'vacation', label: '🕌 Vacances Eid-ul-Adha' },
+  { id: 'W40', name: 'Eid-ul-Adha', dates: 'Mai 31 – Juin 04', type: 'vacation', label: '🕌 Vacances Eid-ul-Adha' },
+  // Bloc 11 - Examens finaux
+  { id: 'W41', name: 'Examen Final', dates: 'Juin 07 – Juin 11', type: 'exam', label: '📝 Examen Final' },
+  { id: 'W42', name: 'Examen Final', dates: 'Juin 14 – Juin 18', type: 'exam', label: '📝 Examen Final' }
 ];
 
 // État global
-let appState = {
+let state = {
   classe: 'PEI1',
-  currentFilter: 'all',
+  matiereFilter: 'all',
   evaluations: []
 };
 
-// ========== UTILITAIRES ==========
-const escape = (str) => String(str || '').replace(/[&<>"']/g, c => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-}[c]));
+// ============ UTILITAIRES ============
+const esc = str => String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-const getMatiereClass = (mat) => {
-  const map = {
-    'Français LL': 'francais',
-    'Anglais AL': 'anglais',
-    'Mathématiques': 'maths',
-    'Sciences': 'sciences',
-    'IS': 'is',
-    'Arts': 'arts',
-    'Design': 'design'
-  };
-  return map[mat] || '';
-};
+const getMatiereClass = mat => ({
+  'Français LL': 'francais',
+  'Anglais AL': 'anglais',
+  'Mathématiques': 'maths',
+  'Sciences': 'sciences',
+  'IS': 'is',
+  'Arts': 'arts',
+  'Design': 'design'
+}[mat] || '');
 
-const getMatiereEmoji = (mat) => {
-  const map = {
-    'Français LL': '🇫🇷',
-    'Anglais AL': '🇬🇧',
-    'Mathématiques': '📐',
-    'Sciences': '🔬',
-    'IS': '🌍',
-    'Arts': '🎨',
-    'Design': '💡'
-  };
-  return map[mat] || '📚';
-};
+const getEmoji = mat => ({
+  'Français LL': '🇫🇷',
+  'Anglais AL': '🇬🇧',
+  'Mathématiques': '📐',
+  'Sciences': '🔬',
+  'IS': '🌍',
+  'Arts': '🎨',
+  'Design': '💡'
+}[mat] || '📚');
 
-// ========== NOTIFICATIONS ==========
-function showNotification(message, type = 'success') {
+// ============ NOTIFICATION ============
+function showNotif(msg, type = 'success') {
   const notif = document.createElement('div');
   notif.className = `notification notif-${type}`;
-  notif.textContent = message;
+  notif.textContent = msg;
   document.body.appendChild(notif);
   setTimeout(() => notif.remove(), 3000);
 }
 
-// ========== STATISTIQUES ==========
-function updateStats() {
-  const container = document.getElementById('statsContainer');
+// ============ RENDU CALENDRIER ============
+function renderCalendar() {
+  const container = document.getElementById('calendarContent');
   if (!container) return;
   
-  const total = appState.evaluations.length;
-  const counts = {};
-  MATIERES.forEach(m => counts[m] = 0);
-  appState.evaluations.forEach(e => counts[e.matiere] = (counts[e.matiere] || 0) + 1);
+  const filtered = state.matiereFilter === 'all' 
+    ? state.evaluations 
+    : state.evaluations.filter(e => e.matiere === state.matiereFilter);
   
-  let html = `
-    <div class="stat-box">
-      <div class="stat-value">${total}</div>
-      <div class="stat-label">📊 Total</div>
-    </div>
-  `;
+  let html = '';
   
-  MATIERES.forEach(mat => {
-    html += `
-      <div class="stat-box">
-        <div class="stat-value">${counts[mat]}</div>
-        <div class="stat-label">${getMatiereEmoji(mat)} ${mat}</div>
-      </div>
-    `;
+  WEEKS.forEach(week => {
+    if (week.type === 'vacation') {
+      html += `
+        <div class="week-block vacation-block">
+          <div class="week-header">
+            <h2 class="week-title">${week.label || week.name}</h2>
+            <span class="week-date">${week.dates}</span>
+          </div>
+        </div>
+      `;
+    } else if (week.type === 'exam') {
+      html += `
+        <div class="week-block exam-block">
+          <div class="week-header">
+            <h2 class="week-title">${week.label || week.name}</h2>
+            <span class="week-date">${week.dates}</span>
+          </div>
+        </div>
+      `;
+    } else if (week.type === 'orientation') {
+      html += `
+        <div class="week-block orientation-block">
+          <div class="week-header">
+            <h2 class="week-title">${week.label || week.name}</h2>
+            <span class="week-date">${week.dates}</span>
+          </div>
+        </div>
+      `;
+    } else {
+      // Semaine avec évaluations
+      const weekEvals = filtered.filter(e => e.semaine === week.id);
+      
+      let evalsHTML = '';
+      weekEvals.forEach(ev => {
+        evalsHTML += `
+          <div class="eval-card eval-${getMatiereClass(ev.matiere)}">
+            <div class="eval-matiere">${getEmoji(ev.matiere)} ${esc(ev.matiere)}</div>
+            <div class="eval-info">📑 Unité: ${esc(ev.unite)}</div>
+            <div class="eval-info">⭐ Critère: ${esc(ev.critere)}</div>
+            <button class="btn-del" onclick="deleteEval('${ev._id}')">×</button>
+          </div>
+        `;
+      });
+      
+      let formHTML = '';
+      if (state.matiereFilter === 'all') {
+        formHTML = `
+          <div class="add-form-container">
+            <div class="form-title">✏️ Ajouter une évaluation</div>
+            <form onsubmit="addEval(event, '${week.id}')">
+              <div class="form-group">
+                <label class="form-label">📖 Matière</label>
+                <select name="matiere" class="form-select" required>
+                  <option value="">-- Choisir --</option>
+                  ${MATIERES.map(m => `<option value="${m}">${m}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">📑 Unité / Thème</label>
+                <input name="unite" class="form-input" required placeholder="Nom de l'unité">
+              </div>
+              <div class="form-group">
+                <label class="form-label">⭐ Critère</label>
+                <select name="critere" class="form-select" required>
+                  <option value="">Choisir</option>
+                  <option>A</option><option>B</option><option>C</option><option>D</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-submit">💾 Enregistrer</button>
+            </form>
+          </div>
+        `;
+      } else {
+        formHTML = `
+          <div class="add-form-container">
+            <div class="form-title">✏️ ${getEmoji(state.matiereFilter)} ${state.matiereFilter}</div>
+            <form onsubmit="addEval(event, '${week.id}')">
+              <input type="hidden" name="matiere" value="${state.matiereFilter}">
+              <div class="form-group">
+                <label class="form-label">📑 Unité / Thème</label>
+                <input name="unite" class="form-input" required placeholder="Nom de l'unité">
+              </div>
+              <div class="form-group">
+                <label class="form-label">⭐ Critère</label>
+                <select name="critere" class="form-select" required>
+                  <option value="">Choisir</option>
+                  <option>A</option><option>B</option><option>C</option><option>D</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-submit">💾 Enregistrer</button>
+            </form>
+          </div>
+        `;
+      }
+      
+      html += `
+        <div class="week-block">
+          <div class="week-header">
+            <h2 class="week-title">📅 ${week.name}</h2>
+            <span class="week-date">${week.dates}</span>
+          </div>
+          <div class="evals-container">${evalsHTML}</div>
+          ${formHTML}
+        </div>
+      `;
+    }
   });
   
   container.innerHTML = html;
 }
 
-// ========== GÉNÉRATION TABLEAU ==========
-function renderCalendar() {
-  const table = document.getElementById('calendarTable');
-  if (!table) return;
-  
-  const filtered = appState.currentFilter === 'all' 
-    ? appState.evaluations 
-    : appState.evaluations.filter(e => e.matiere === appState.currentFilter);
-  
-  // Grouper par blocs de 4 semaines
-  const blocks = [];
-  for (let i = 0; i < WEEKS_DATA.length; i += 4) {
-    blocks.push(WEEKS_DATA.slice(i, i + 4));
-  }
-  
-  let html = '';
-  
-  blocks.forEach((block, blockIdx) => {
-    // Header
-    html += '<thead><tr>';
-    html += '<th style="width: 150px;">Mois</th>';
-    block.forEach(week => {
-      html += `<th>${week.title}</th>`;
-    });
-    html += '</tr></thead>';
-    
-    // Dates
-    html += '<thead><tr>';
-    html += '<th>Dates</th>';
-    block.forEach(week => {
-      html += `<th style="font-size: 0.75rem; font-weight: 600;">${week.date}</th>`;
-    });
-    html += '</tr></thead>';
-    
-    // Body
-    html += '<tbody><tr>';
-    html += `<td style="background: linear-gradient(135deg, #fed7aa, #fdba74); font-weight: 800; color: #92400e; text-align: center;">Bloc ${blockIdx + 1}</td>`;
-    
-    block.forEach(week => {
-      if (week.type === 'orientation') {
-        html += `<td class="cell-orientation">${week.title}</td>`;
-      } else if (week.type === 'vacation') {
-        html += `<td class="cell-vacation">🏖️ ${week.title}</td>`;
-      } else if (week.type === 'exam') {
-        html += `<td class="cell-exam">📝 ${week.title}</td>`;
-      } else {
-        const weekEvals = filtered.filter(e => e.semaine === week.id);
-        
-        let evalsHTML = '';
-        weekEvals.forEach(ev => {
-          evalsHTML += `
-            <div class="eval-item eval-${getMatiereClass(ev.matiere)}">
-              <div class="eval-matiere">${getMatiereEmoji(ev.matiere)} ${escape(ev.matiere)}</div>
-              <div class="eval-detail">📑 ${escape(ev.unite)}</div>
-              <div class="eval-detail">⭐ Critère ${escape(ev.critere)}</div>
-              <button class="btn-delete" onclick="handleDelete('${ev._id}')">×</button>
-            </div>
-          `;
-        });
-        
-        let formHTML = '';
-        if (appState.currentFilter === 'all') {
-          formHTML = `
-            <div class="add-form">
-              <div class="form-title">✏️ Ajouter</div>
-              <form onsubmit="handleAdd(event, '${week.id}')">
-                <div class="form-row">
-                  <label>📖 Matière</label>
-                  <select name="matiere" required>
-                    <option value="">-- Choisir --</option>
-                    ${MATIERES.map(m => `<option value="${m}">${m}</option>`).join('')}
-                  </select>
-                </div>
-                <div class="form-row">
-                  <label>📑 Unité</label>
-                  <input name="unite" required placeholder="Nom de l'unité"/>
-                </div>
-                <div class="form-row">
-                  <label>⭐ Critère</label>
-                  <select name="critere" required>
-                    <option value="">Choisir</option>
-                    <option>A</option><option>B</option><option>C</option><option>D</option>
-                  </select>
-                </div>
-                <button type="submit" class="btn-submit">💾 Enregistrer</button>
-              </form>
-            </div>
-          `;
-        } else {
-          formHTML = `
-            <div class="add-form">
-              <div class="form-title">✏️ ${getMatiereEmoji(appState.currentFilter)} ${appState.currentFilter}</div>
-              <form onsubmit="handleAdd(event, '${week.id}')">
-                <input type="hidden" name="matiere" value="${appState.currentFilter}"/>
-                <div class="form-row">
-                  <label>📑 Unité</label>
-                  <input name="unite" required placeholder="Nom de l'unité"/>
-                </div>
-                <div class="form-row">
-                  <label>⭐ Critère</label>
-                  <select name="critere" required>
-                    <option value="">Choisir</option>
-                    <option>A</option><option>B</option><option>C</option><option>D</option>
-                  </select>
-                </div>
-                <button type="submit" class="btn-submit">💾 Enregistrer</button>
-              </form>
-            </div>
-          `;
-        }
-        
-        html += `
-          <td>
-            <div class="week-card">
-              <div class="week-header">
-                <div class="week-title">📅 ${week.title}</div>
-                <div class="week-date">${week.date}</div>
-              </div>
-              <div class="evaluations-list">${evalsHTML}</div>
-              ${formHTML}
-            </div>
-          </td>
-        `;
-      }
-    });
-    
-    html += '</tr></tbody>';
-  });
-  
-  table.innerHTML = html;
-}
-
-// ========== CHARGEMENT ÉVALUATIONS ==========
-async function loadEvaluations(classe) {
+// ============ CHARGEMENT ============
+async function loadEvals(classe) {
   try {
-    const res = await fetch(`${API_URL}?classe=${classe}`);
-    if (!res.ok) throw new Error('Erreur chargement');
-    appState.evaluations = await res.json();
+    const res = await fetch(`${API}?classe=${classe}`);
+    if (!res.ok) throw new Error('Erreur');
+    state.evaluations = await res.json();
     renderCalendar();
-    updateStats();
   } catch (err) {
     console.error(err);
-    showNotification('❌ Erreur de chargement', 'error');
+    showNotif('❌ Erreur chargement', 'error');
   }
 }
 
-// ========== AJOUTER ÉVALUATION ==========
-async function handleAdd(e, weekId) {
+// ============ AJOUT ============
+async function addEval(e, weekId) {
   e.preventDefault();
   const form = e.target;
   
   const data = {
-    classe: appState.classe,
+    classe: state.classe,
     semaine: weekId,
     matiere: form.matiere.value.trim(),
     unite: form.unite.value.trim(),
@@ -283,12 +246,12 @@ async function handleAdd(e, weekId) {
   };
   
   if (!data.matiere || !data.unite || !data.critere) {
-    showNotification('⚠️ Tous les champs requis', 'warning');
+    showNotif('⚠️ Tous les champs requis', 'warning');
     return;
   }
   
   try {
-    const res = await fetch(API_URL, {
+    const res = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -297,37 +260,35 @@ async function handleAdd(e, weekId) {
     if (!res.ok) throw new Error('Erreur');
     
     const newEval = await res.json();
-    appState.evaluations.push(newEval);
+    state.evaluations.push(newEval);
     form.reset();
     renderCalendar();
-    updateStats();
-    showNotification('✅ Évaluation enregistrée!', 'success');
+    showNotif('✅ Évaluation enregistrée!', 'success');
   } catch (err) {
     console.error(err);
-    showNotification('❌ Échec enregistrement', 'error');
+    showNotif('❌ Échec enregistrement', 'error');
   }
 }
 
-// ========== SUPPRIMER ÉVALUATION ==========
-async function handleDelete(id) {
+// ============ SUPPRESSION ============
+async function deleteEval(id) {
   if (!confirm('Supprimer cette évaluation ?')) return;
   
   try {
-    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Erreur');
     
-    appState.evaluations = appState.evaluations.filter(e => e._id !== id);
+    state.evaluations = state.evaluations.filter(e => e._id !== id);
     renderCalendar();
-    updateStats();
-    showNotification('✅ Évaluation supprimée', 'success');
+    showNotif('✅ Évaluation supprimée', 'success');
   } catch (err) {
     console.error(err);
-    showNotification('❌ Échec suppression', 'error');
+    showNotif('❌ Échec suppression', 'error');
   }
 }
 
-// ========== GÉNÉRATION WORD ==========
-function generateWordHTML(evals, title) {
+// ============ EXPORT WORD ============
+function genWordHTML(evals, title) {
   const grouped = {};
   evals.forEach(e => {
     if (!grouped[e.semaine]) grouped[e.semaine] = [];
@@ -341,33 +302,33 @@ function generateWordHTML(evals, title) {
   <title>${title}</title>
   <style>
     body { font-family: Arial; padding: 30px; line-height: 1.6; }
-    .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-    h1 { color: #2563eb; font-size: 28px; margin: 0; }
-    .info { color: #64748b; margin: 8px 0; }
-    .week { margin: 20px 0; border: 2px solid #e2e8f0; border-radius: 10px; padding: 15px; }
-    .week h2 { background: linear-gradient(135deg, #2563eb, #1e40af); color: white; padding: 10px; border-radius: 8px; margin: 0 0 12px; }
-    .eval { background: #f8fafc; padding: 12px; margin: 10px 0; border-left: 4px solid #10b981; border-radius: 6px; }
-    .eval p { margin: 4px 0; }
-    strong { color: #047857; }
+    .header { text-align: center; border-bottom: 3px solid #003366; padding-bottom: 20px; margin-bottom: 30px; }
+    h1 { color: #003366; font-size: 28px; margin: 10px 0; }
+    .info { color: #666; margin: 5px 0; }
+    .week { margin: 20px 0; border: 2px solid #EEE; border-radius: 10px; padding: 15px; page-break-inside: avoid; }
+    .week h2 { background: linear-gradient(135deg, #003366, #0066CC); color: white; padding: 10px; border-radius: 8px; margin: 0 0 15px; }
+    .eval { background: #F8F8F8; padding: 12px; margin: 10px 0; border-left: 4px solid #00CC66; border-radius: 6px; }
+    .eval p { margin: 5px 0; }
+    strong { color: #003366; }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>📅 ${title}</h1>
-    <p class="info"><strong>Classe:</strong> ${appState.classe} | <strong>Année:</strong> 2025-2026</p>
-    <p class="info">Kawthar International School (KIS)</p>
+    <p class="info"><strong>Classe:</strong> ${state.classe} | <strong>Année:</strong> 2025-2026</p>
+    <p class="info">Kawthar International School</p>
   </div>`;
   
   Object.keys(grouped).sort().forEach(wid => {
-    const week = WEEKS_DATA.find(w => w.id === wid);
-    const weekTitle = week ? `${week.title} (${week.date})` : wid;
+    const week = WEEKS.find(w => w.id === wid);
+    const weekTitle = week ? `${week.name} (${week.dates})` : wid;
     
     html += `<div class="week"><h2>📍 ${weekTitle}</h2>`;
     grouped[wid].forEach(e => {
       html += `<div class="eval">
-        <p><strong>${getMatiereEmoji(e.matiere)} Matière:</strong> ${escape(e.matiere)}</p>
-        <p><strong>📑 Unité:</strong> ${escape(e.unite)}</p>
-        <p><strong>⭐ Critère:</strong> ${escape(e.critere)}</p>
+        <p><strong>${getEmoji(e.matiere)} Matière:</strong> ${esc(e.matiere)}</p>
+        <p><strong>📑 Unité:</strong> ${esc(e.unite)}</p>
+        <p><strong>⭐ Critère:</strong> ${esc(e.critere)}</p>
       </div>`;
     });
     html += '</div>';
@@ -377,7 +338,7 @@ function generateWordHTML(evals, title) {
   return html;
 }
 
-function downloadFile(content, filename) {
+function download(content, filename) {
   const blob = new Blob([content], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -390,18 +351,18 @@ function downloadFile(content, filename) {
 }
 
 async function exportZIP() {
-  if (!appState.evaluations.length) {
-    showNotification('⚠️ Aucune évaluation à exporter', 'warning');
+  if (!state.evaluations.length) {
+    showNotif('⚠️ Aucune évaluation', 'warning');
     return;
   }
   
   const zip = new JSZip();
   
   MATIERES.forEach(mat => {
-    const evals = appState.evaluations.filter(e => e.matiere === mat);
+    const evals = state.evaluations.filter(e => e.matiere === mat);
     if (evals.length) {
-      const content = generateWordHTML(evals, `Calendrier ${mat}`);
-      zip.file(`${appState.classe}_${mat.replace(/\s+/g, '_')}.html`, content);
+      const content = genWordHTML(evals, `Calendrier ${mat}`);
+      zip.file(`${state.classe}_${mat.replace(/\s+/g, '_')}.html`, content);
     }
   });
   
@@ -410,68 +371,68 @@ async function exportZIP() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Calendrier_${appState.classe}_ZIP.zip`;
+    a.download = `Calendrier_${state.classe}_ZIP.zip`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showNotification('📦 ZIP généré avec succès!', 'success');
+    showNotif('📦 ZIP généré!', 'success');
   } catch (err) {
     console.error(err);
-    showNotification('❌ Erreur génération ZIP', 'error');
+    showNotif('❌ Erreur ZIP', 'error');
   }
 }
 
 function exportMatiere() {
-  if (appState.currentFilter === 'all') {
-    showNotification('⚠️ Sélectionnez une matière dans les onglets', 'warning');
+  if (state.matiereFilter === 'all') {
+    showNotif('⚠️ Sélectionnez une matière', 'warning');
     return;
   }
   
-  const evals = appState.evaluations.filter(e => e.matiere === appState.currentFilter);
+  const evals = state.evaluations.filter(e => e.matiere === state.matiereFilter);
   if (!evals.length) {
-    showNotification('⚠️ Aucune évaluation pour cette matière', 'warning');
+    showNotif('⚠️ Aucune évaluation', 'warning');
     return;
   }
   
-  const content = generateWordHTML(evals, `Calendrier ${appState.currentFilter}`);
-  downloadFile(content, `${appState.classe}_${appState.currentFilter.replace(/\s+/g, '_')}.html`);
-  showNotification('📄 Document généré!', 'success');
+  const content = genWordHTML(evals, `Calendrier ${state.matiereFilter}`);
+  download(content, `${state.classe}_${state.matiereFilter.replace(/\s+/g, '_')}.html`);
+  showNotif('📄 Document généré!', 'success');
 }
 
 function exportComplet() {
-  if (!appState.evaluations.length) {
-    showNotification('⚠️ Aucune évaluation à exporter', 'warning');
+  if (!state.evaluations.length) {
+    showNotif('⚠️ Aucune évaluation', 'warning');
     return;
   }
   
-  const content = generateWordHTML(appState.evaluations, 'Calendrier Complet');
-  downloadFile(content, `${appState.classe}_Complet.html`);
-  showNotification('📋 Document complet généré!', 'success');
+  const content = genWordHTML(state.evaluations, 'Calendrier Complet');
+  download(content, `${state.classe}_Complet.html`);
+  showNotif('📋 Document généré!', 'success');
 }
 
-// ========== INITIALISATION ==========
+// ============ INIT ============
 document.addEventListener('DOMContentLoaded', () => {
-  const selectClasse = document.getElementById('selectClasse');
+  const classeSelect = document.getElementById('classeSelect');
   const btnExport = document.getElementById('btnExport');
-  const modal = document.getElementById('modalExport');
-  const btnCloseModal = document.getElementById('btnCloseModal');
+  const modal = document.getElementById('exportModal');
+  const closeModal = document.getElementById('closeModal');
   
-  // Charger initial
-  loadEvaluations(appState.classe);
+  // Chargement initial
+  loadEvals(state.classe);
   
   // Changement classe
-  selectClasse.addEventListener('change', () => {
-    appState.classe = selectClasse.value;
-    loadEvaluations(appState.classe);
+  classeSelect.addEventListener('change', () => {
+    state.classe = classeSelect.value;
+    loadEvals(state.classe);
   });
   
-  // Tabs
-  document.querySelectorAll('.tab-item').forEach(tab => {
+  // Tabs matières
+  document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      const filter = tab.dataset.filter;
-      appState.currentFilter = filter;
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      const matiere = tab.dataset.matiere;
+      state.matiereFilter = matiere;
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       renderCalendar();
     });
@@ -479,16 +440,16 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Modal
   btnExport.addEventListener('click', () => modal.classList.add('show'));
-  btnCloseModal.addEventListener('click', () => modal.classList.remove('show'));
-  modal.addEventListener('click', (e) => {
+  closeModal.addEventListener('click', () => modal.classList.remove('show'));
+  modal.addEventListener('click', e => {
     if (e.target === modal) modal.classList.remove('show');
   });
   
-  // Export options
-  document.querySelectorAll('.export-option').forEach(opt => {
-    opt.addEventListener('click', () => {
+  // Export
+  document.querySelectorAll('.export-card').forEach(card => {
+    card.addEventListener('click', () => {
       modal.classList.remove('show');
-      const type = opt.dataset.type;
+      const type = card.dataset.export;
       if (type === 'zip') exportZIP();
       else if (type === 'matiere') exportMatiere();
       else if (type === 'complet') exportComplet();
@@ -497,5 +458,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Exposition globale
-window.handleAdd = handleAdd;
-window.handleDelete = handleDelete;
+window.addEval = addEval;
+window.deleteEval = deleteEval;
