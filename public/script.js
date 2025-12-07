@@ -233,14 +233,27 @@ function renderCalendrier() {
 async function loadEvaluations(classe) {
   try {
     console.log('📥 Chargement des évaluations pour', classe);
-    const response = await fetch(`${API_URL}?classe=${classe}`);
-    if (!response.ok) throw new Error('Erreur de chargement');
+    const response = await fetch(`${API_URL}?classe=${encodeURIComponent(classe)}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Erreur inconnue' }));
+      console.error('❌ Erreur serveur:', errorData);
+      throw new Error(errorData.message || `Erreur ${response.status}`);
+    }
+    
     state.evaluations = await response.json();
-    console.log('✅ Chargé:', state.evaluations.length, 'évaluations');
+    console.log(`✅ ${state.evaluations.length} évaluation(s) chargée(s) pour ${classe}`);
+    
+    if (state.evaluations.length === 0) {
+      console.log('ℹ️ Aucune évaluation trouvée pour cette classe');
+    }
+    
     renderCalendrier();
   } catch (error) {
-    console.error('❌ Erreur:', error);
-    showToast('❌ Erreur de chargement', 'error');
+    console.error('❌ Erreur de chargement:', error);
+    showToast('❌ ' + error.message, 'error');
+    state.evaluations = [];
+    renderCalendrier();
   }
 }
 
@@ -270,85 +283,128 @@ async function addEvaluation(event, semaineId) {
       body: JSON.stringify(data)
     });
 
-    if (!response.ok) throw new Error('Erreur');
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('❌ Erreur serveur:', errorData);
+      throw new Error(errorData.message || 'Erreur serveur');
+    }
 
     const newEval = await response.json();
+    console.log('✅ Évaluation créée avec ID:', newEval._id);
+    
     state.evaluations.push(newEval);
     form.reset();
     renderCalendrier();
-    showToast('✅ Évaluation enregistrée!', 'success');
+    showToast('✅ Évaluation enregistrée dans MongoDB!', 'success');
   } catch (error) {
     console.error('❌ Erreur:', error);
-    showToast('❌ Erreur d\'enregistrement', 'error');
+    showToast('❌ ' + error.message, 'error');
   }
 }
 
 // === SUPPRIMER UNE ÉVALUATION ===
 async function deleteEvaluation(id) {
-  if (!confirm('Supprimer cette évaluation ?')) return;
+  if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer cette évaluation ?\nCette action est irréversible.')) {
+    return;
+  }
 
   try {
-    console.log('🗑️ Suppression:', id);
+    console.log('🗑️ Suppression de l\'évaluation:', id);
     const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    if (!response.ok) throw new Error('Erreur');
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Erreur inconnue' }));
+      console.error('❌ Erreur serveur:', errorData);
+      throw new Error(errorData.message || 'Erreur de suppression');
+    }
 
+    const result = await response.json();
+    console.log('✅ Réponse serveur:', result);
+    
     state.evaluations = state.evaluations.filter(e => e._id !== id);
     renderCalendrier();
-    showToast('✅ Évaluation supprimée', 'success');
+    showToast('✅ Évaluation supprimée de MongoDB', 'success');
   } catch (error) {
-    console.error('❌ Erreur:', error);
-    showToast('❌ Erreur de suppression', 'error');
+    console.error('❌ Erreur de suppression:', error);
+    showToast('❌ ' + error.message, 'error');
   }
 }
 
 // === GÉNÉRATION DOCUMENT WORD ===
 function generateWordDocument(evals, titre) {
+  if (!evals || evals.length === 0) {
+    console.warn('⚠️ Aucune évaluation à générer');
+    return '';
+  }
+
+  console.log(`📝 Génération document: ${titre} avec ${evals.length} évaluations`);
+  
   const grouped = {};
   evals.forEach(e => {
     if (!grouped[e.semaine]) grouped[e.semaine] = [];
     grouped[e.semaine].push(e);
   });
 
+  const totalSemaines = Object.keys(grouped).length;
+  console.log(`📊 ${totalSemaines} semaine(s) avec évaluations`);
+
   let html = `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>${titre}</title>
+  <title>${escapeHtml(titre)}</title>
   <style>
-    body { font-family: Arial; padding: 30px; line-height: 1.7; }
+    body { font-family: Arial, sans-serif; padding: 30px; line-height: 1.7; background: white; }
     .header { text-align: center; border-bottom: 4px solid #003366; padding-bottom: 20px; margin-bottom: 30px; }
-    h1 { color: #003366; font-size: 32px; margin: 12px 0; }
-    .info { color: #666; margin: 8px 0; }
-    .semaine { margin: 25px 0; border: 3px solid #EEE; border-radius: 12px; padding: 18px; page-break-inside: avoid; }
-    .semaine h2 { background: linear-gradient(135deg, #003366, #0066CC); color: white; padding: 12px; border-radius: 10px; margin: 0 0 18px; }
-    .evaluation { background: #F8F8F8; padding: 14px; margin: 12px 0; border-left: 5px solid #00CC66; border-radius: 8px; }
-    .evaluation p { margin: 6px 0; }
-    strong { color: #003366; }
+    h1 { color: #003366; font-size: 32px; margin: 12px 0; font-weight: 900; }
+    .info { color: #666; margin: 8px 0; font-size: 14px; }
+    .stats { color: #0066CC; font-weight: bold; margin: 12px 0; }
+    .semaine { margin: 25px 0; border: 3px solid #EEE; border-radius: 12px; padding: 18px; page-break-inside: avoid; background: #FAFAFA; }
+    .semaine h2 { background: linear-gradient(135deg, #003366, #0066CC); color: white; padding: 12px; border-radius: 10px; margin: 0 0 18px; font-size: 20px; }
+    .evaluation { background: #FFFFFF; padding: 14px; margin: 12px 0; border-left: 5px solid #00CC66; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .evaluation p { margin: 6px 0; font-size: 14px; }
+    strong { color: #003366; font-weight: 800; }
+    .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #003366; color: #666; font-size: 12px; }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>📅 ${titre}</h1>
+    <h1>📅 ${escapeHtml(titre)}</h1>
     <p class="info"><strong>Classe:</strong> ${state.classe} | <strong>Année:</strong> 2025-2026</p>
-    <p class="info">Kawthar International School</p>
+    <p class="stats">Total: ${evals.length} évaluation(s) sur ${totalSemaines} semaine(s)</p>
+    <p class="info">Kawthar International School - Programme IB</p>
   </div>`;
 
   Object.keys(grouped).sort().forEach(sid => {
     const sem = SEMAINES.find(s => s.id === sid);
     const semTitre = sem ? `${sem.nom} (${sem.dates})` : sid;
+    const evalsCount = grouped[sid].length;
 
-    html += `<div class="semaine"><h2>📍 ${semTitre}</h2>`;
+    html += `<div class="semaine">
+      <h2>📍 ${escapeHtml(semTitre)} - ${evalsCount} évaluation(s)</h2>`;
+    
     grouped[sid].forEach(e => {
       html += `<div class="evaluation">
         <p><strong>${getMatiereEmoji(e.matiere)} Matière:</strong> ${escapeHtml(e.matiere)}</p>
-        <p><strong>📑 Unité:</strong> ${escapeHtml(e.unite)}</p>
+        <p><strong>📑 Unité / Thème:</strong> ${escapeHtml(e.unite)}</p>
         <p><strong>⭐ Critère:</strong> ${escapeHtml(e.critere)}</p>
       </div>`;
     });
     html += '</div>';
   });
 
-  html += '</body></html>';
+  const dateGen = new Date().toLocaleDateString('fr-FR', { 
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  html += `
+  <div class="footer">
+    <p>Document généré le ${dateGen}</p>
+    <p>Kawthar International School © 2025-2026</p>
+  </div>
+</body></html>`;
+  
   return html;
 }
 
@@ -367,66 +423,82 @@ function downloadFile(content, filename) {
 // === EXPORT ZIP ===
 async function exportZIP() {
   if (!state.evaluations.length) {
-    showToast('⚠️ Aucune évaluation à exporter', 'warning');
+    showToast('⚠️ Aucune évaluation à exporter pour ' + state.classe, 'warning');
     return;
   }
 
   const zip = new JSZip();
+  let filesCount = 0;
 
   MATIERES.forEach(matiere => {
     const evals = state.evaluations.filter(e => e.matiere === matiere);
     if (evals.length) {
-      const content = generateWordDocument(evals, `Calendrier ${matiere}`);
-      zip.file(`${state.classe}_${matiere.replace(/\s+/g, '_')}.html`, content);
+      const titre = `Calendrier ${matiere} - ${state.classe}`;
+      const content = generateWordDocument(evals, titre);
+      const filename = `${state.classe}_${matiere.replace(/\s+/g, '_')}.html`;
+      zip.file(filename, content);
+      filesCount++;
+      console.log(`📄 Ajout au ZIP: ${filename} (${evals.length} évaluations)`);
     }
   });
 
+  if (filesCount === 0) {
+    showToast('⚠️ Aucune matière avec évaluations à exporter', 'warning');
+    return;
+  }
+
   try {
-    console.log('📦 Génération ZIP...');
+    console.log(`📦 Génération ZIP avec ${filesCount} fichiers...`);
     const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Calendrier_${state.classe}_ZIP.zip`;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.download = `Calendrier_${state.classe}_Toutes_Matieres_${dateStr}.zip`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    showToast('📦 ZIP généré avec succès!', 'success');
+    showToast(`📦 ZIP généré: ${filesCount} fichiers pour ${state.classe}!`, 'success');
   } catch (error) {
     console.error('❌ Erreur ZIP:', error);
-    showToast('❌ Erreur de génération ZIP', 'error');
+    showToast('❌ Erreur de génération ZIP: ' + error.message, 'error');
   }
 }
 
 // === EXPORT MATIÈRE ===
 function exportMatiere() {
   if (state.matiere === 'all') {
-    showToast('⚠️ Sélectionnez une matière spécifique', 'warning');
+    showToast('⚠️ Sélectionnez une matière spécifique dans les onglets', 'warning');
     return;
   }
 
   const evals = state.evaluations.filter(e => e.matiere === state.matiere);
   if (!evals.length) {
-    showToast('⚠️ Aucune évaluation pour cette matière', 'warning');
+    showToast(`⚠️ Aucune évaluation pour ${state.matiere}`, 'warning');
     return;
   }
 
-  const content = generateWordDocument(evals, `Calendrier ${state.matiere}`);
-  downloadFile(content, `${state.classe}_${state.matiere.replace(/\s+/g, '_')}.html`);
-  showToast('📄 Document généré!', 'success');
+  console.log(`📄 Export de ${evals.length} évaluation(s) pour ${state.matiere}`);
+  const content = generateWordDocument(evals, `Calendrier ${state.matiere} - ${state.classe}`);
+  const filename = `${state.classe}_${state.matiere.replace(/\s+/g, '_')}.html`;
+  downloadFile(content, filename);
+  showToast(`📄 Document ${state.matiere} généré!`, 'success');
 }
 
 // === EXPORT COMPLET ===
 function exportComplet() {
   if (!state.evaluations.length) {
-    showToast('⚠️ Aucune évaluation à exporter', 'warning');
+    showToast('⚠️ Aucune évaluation à exporter pour ' + state.classe, 'warning');
     return;
   }
 
-  const content = generateWordDocument(state.evaluations, 'Calendrier Complet');
-  downloadFile(content, `${state.classe}_Complet.html`);
-  showToast('📋 Document complet généré!', 'success');
+  console.log(`📋 Export complet de ${state.evaluations.length} évaluation(s) pour ${state.classe}`);
+  const titre = `Calendrier Complet - ${state.classe} - Toutes Matières`;
+  const content = generateWordDocument(state.evaluations, titre);
+  const filename = `${state.classe}_Calendrier_Complet_${new Date().toISOString().split('T')[0]}.html`;
+  downloadFile(content, filename);
+  showToast(`📋 Document complet généré (${state.evaluations.length} évaluations)!`, 'success');
 }
 
 // === INITIALISATION ===

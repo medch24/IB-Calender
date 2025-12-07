@@ -50,14 +50,45 @@ const Evaluation = mongoose.model('Evaluation', evaluationSchema);
 app.post('/api/evaluations', async (req, res) => {
   try {
     const { classe, semaine, matiere, unite, critere } = req.body;
+    
+    // Validation des champs requis
     if (!classe || !semaine || !matiere || !unite || !critere) {
-      return res.status(400).json({ message: 'Tous les champs sont requis.' });
+      console.error('❌ Champs manquants:', { classe, semaine, matiere, unite, critere });
+      return res.status(400).json({ 
+        message: 'Tous les champs sont requis.',
+        missing: { classe, semaine, matiere, unite, critere }
+      });
     }
-    const nouvelleEvaluation = new Evaluation({ classe, semaine, matiere, unite, critere });
-    await nouvelleEvaluation.save();
-    res.status(201).json(nouvelleEvaluation);
+    
+    // Vérification de la connexion MongoDB
+    if (mongoose.connection.readyState !== 1) {
+      console.error('❌ MongoDB non connecté. État:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        message: 'Base de données non disponible. Veuillez réessayer.',
+        dbState: mongoose.connection.readyState
+      });
+    }
+    
+    // Création et sauvegarde de l'évaluation
+    const nouvelleEvaluation = new Evaluation({ 
+      classe: classe.trim(), 
+      semaine: semaine.trim(), 
+      matiere: matiere.trim(), 
+      unite: unite.trim(), 
+      critere: critere.trim() 
+    });
+    
+    const savedEvaluation = await nouvelleEvaluation.save();
+    console.log('✅ Évaluation enregistrée avec succès:', savedEvaluation._id);
+    
+    res.status(201).json(savedEvaluation);
   } catch (error) {
-    res.status(500).json({ message: "Erreur lors de l'enregistrement de l'évaluation.", error: error.message });
+    console.error('❌ Erreur lors de l\'enregistrement:', error);
+    res.status(500).json({ 
+      message: "Erreur lors de l'enregistrement de l'évaluation.", 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
@@ -65,13 +96,33 @@ app.post('/api/evaluations', async (req, res) => {
 app.get('/api/evaluations', async (req, res) => {
   try {
     const { classe } = req.query;
+    
     if (!classe) {
       return res.status(400).json({ message: 'Le paramètre "classe" est requis.' });
     }
-    const evaluations = await Evaluation.find({ classe }).sort({ semaine: 1, matiere: 1 });
+    
+    // Vérification de la connexion MongoDB
+    if (mongoose.connection.readyState !== 1) {
+      console.error('❌ MongoDB non connecté. État:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        message: 'Base de données non disponible.',
+        dbState: mongoose.connection.readyState
+      });
+    }
+    
+    console.log('📥 Récupération des évaluations pour la classe:', classe);
+    const evaluations = await Evaluation.find({ classe: classe.trim() })
+      .sort({ semaine: 1, matiere: 1 })
+      .lean();
+    
+    console.log(`✅ ${evaluations.length} évaluation(s) trouvée(s) pour ${classe}`);
     res.json(evaluations);
   } catch (error) {
-    res.status(500).json({ message: "Erreur lors de la récupération des évaluations.", error: error.message });
+    console.error('❌ Erreur lors de la récupération:', error);
+    res.status(500).json({ 
+      message: "Erreur lors de la récupération des évaluations.", 
+      error: error.message 
+    });
   }
 });
 
@@ -79,13 +130,32 @@ app.get('/api/evaluations', async (req, res) => {
 app.delete('/api/evaluations/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // Vérification de la connexion MongoDB
+    if (mongoose.connection.readyState !== 1) {
+      console.error('❌ MongoDB non connecté. État:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        message: 'Base de données non disponible.',
+        dbState: mongoose.connection.readyState
+      });
+    }
+    
+    console.log('🗑️ Suppression de l\'évaluation:', id);
     const resultat = await Evaluation.findByIdAndDelete(id);
+    
     if (!resultat) {
+      console.error('❌ Évaluation non trouvée:', id);
       return res.status(404).json({ message: 'Évaluation non trouvée.' });
     }
-    res.status(200).json({ message: 'Évaluation supprimée avec succès.' });
+    
+    console.log('✅ Évaluation supprimée avec succès:', id);
+    res.status(200).json({ message: 'Évaluation supprimée avec succès.', deletedId: id });
   } catch (error) {
-    res.status(500).json({ message: "Erreur lors de la suppression de l'évaluation.", error: error.message });
+    console.error('❌ Erreur lors de la suppression:', error);
+    res.status(500).json({ 
+      message: "Erreur lors de la suppression de l'évaluation.", 
+      error: error.message 
+    });
   }
 });
 
