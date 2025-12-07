@@ -4,7 +4,130 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendrier des Évaluations - KIS</title>
-  <link rel="stylesheet" href="style.css?v=2025120701">
+  
+  <!-- FORCE NO CACHE -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <!-- CSS INLINE POUR FORCER LE STYLE -->
+  <style>
+    /* RESET BRUTAL */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* VARIABLES */
+    :root {
+      --bleu-kawthar: #003366;
+      --gris-bordure: #CCCCCC;
+      --blanc: #FFFFFF;
+      --gris-fond: #F5F5F5;
+      --beige-fond: #FFF8E8;
+      --texte-noir: #333333;
+      --texte-gris: #666666;
+      --orange: #FF9933;
+    }
+    
+    /* BODY */
+    body {
+      font-family: Arial, Helvetica, sans-serif !important;
+      background: var(--gris-fond) !important;
+      color: var(--texte-noir) !important;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* HEADER - FORCE BLANC */
+    .header {
+      background: var(--blanc) !important;
+      padding: 25px 0 20px;
+      border-bottom: 2px solid var(--gris-bordure) !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .logo-wrapper {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .main-logo {
+      width: 200px !important;
+      height: auto;
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .page-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--texte-noir) !important;
+      margin: 15px 0 8px;
+    }
+    
+    .page-subtitle {
+      text-align: center;
+      font-size: 1rem;
+      color: var(--texte-gris);
+      margin-bottom: 20px;
+    }
+    
+    .controls-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    
+    .control-label {
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: var(--texte-noir);
+    }
+    
+    .class-selector {
+      padding: 10px 18px;
+      border: 1px solid var(--gris-bordure) !important;
+      border-radius: 4px;
+      background: var(--blanc) !important;
+      color: var(--texte-noir);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      min-width: 120px;
+    }
+    
+    .export-button {
+      padding: 10px 24px;
+      background: var(--orange) !important;
+      color: white !important;
+      border: 1px solid darkorange !important;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    
+    .info-legend {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      padding-top: 15px;
+      border-top: 1px solid var(--gris-bordure);
+      font-size: 0.88rem;
+    }
+  </style>
+  
+  <link rel="stylesheet" href="style.css?v=20251207FORCE">
   <link rel="icon" href="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK">
 </head>
 <body>
@@ -106,6 +229,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="script.js?v=2025120701"></script>
+  <script src="script.js?v=20251207FORCE"></script>
 </body>
 </html>
