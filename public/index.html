@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendrier des Évaluations - KIS</title>
-  <link rel="stylesheet" href="style.css?v=1765053015">
+  <link rel="stylesheet" href="style.css?v=1765054000">
   <link rel="icon" href="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
@@ -15,17 +15,19 @@
   <!-- HEADER -->
   <header class="header">
     <div class="container">
-      <div class="header-top">
-        <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="KIS Logo" class="logo">
-        <div class="header-content">
-          <h1 class="title">Calendrier des Évaluations</h1>
-          <p class="subtitle">Kawthar International School - Année 2025-2026</p>
-        </div>
+      <!-- Logo centré -->
+      <div class="logo-container">
+        <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="Al Kawthar Logo" class="logo">
       </div>
       
+      <!-- Titre -->
+      <h1 class="title">Calendrier des Évaluations</h1>
+      <p class="subtitle">Kawthar International School - Année 2025-2026</p>
+      
+      <!-- Contrôles -->
       <div class="header-controls">
         <div class="control-group">
-          <label for="classeSelect">🎓 Classe:</label>
+          <label for="classeSelect">⚫ Classe:</label>
           <select id="classeSelect" class="select-classe">
             <option value="PEI1">PEI 1</option>
             <option value="PEI2">PEI 2</option>
@@ -35,15 +37,15 @@
             <option value="DP1">DP 1</option>
             <option value="DP2">DP 2</option>
           </select>
+          <button id="btnExport" class="btn-export">📦 Exporter</button>
         </div>
-        
-        <button id="btnExport" class="btn-export">📦 Exporter</button>
       </div>
       
+      <!-- Légende -->
       <div class="legend">
-        <span class="legend-item">🗓️ Orientation</span>
-        <span class="legend-item">🏖️ Vacances</span>
-        <span class="legend-item">📝 Examens</span>
+        <span class="legend-item">📌 Orientation</span>
+        <span class="legend-item">☀️ Vacances</span>
+        <span class="legend-item">📊 Examens</span>
       </div>
     </div>
   </header>
@@ -107,6 +109,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="script.js?v=1765053015"></script>
+  <script src="script.js?v=1765054000"></script>
 </body>
 </html>
