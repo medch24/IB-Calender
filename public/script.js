@@ -514,12 +514,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Tabs matières
-  document.querySelectorAll('.tab-matiere').forEach(tab => {
+  document.querySelectorAll('.subject-tab, .tab-matiere').forEach(tab => {
     tab.addEventListener('click', () => {
       const matiere = tab.dataset.matiere;
       state.matiere = matiere;
       console.log('🔄 Matière changée:', matiere);
-      document.querySelectorAll('.tab-matiere').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.subject-tab, .tab-matiere').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       renderCalendrier();
     });
@@ -528,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Modal export
   const modal = document.getElementById('modalExport');
   const btnExport = document.getElementById('btnExport');
-  const btnClose = modal.querySelector('.btn-close');
+  const btnClose = modal.querySelector('.close-button, .btn-close');
 
   btnExport.addEventListener('click', () => modal.classList.add('show'));
   btnClose.addEventListener('click', () => modal.classList.remove('show'));
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Options d'export
-  document.querySelectorAll('.export-option').forEach(option => {
+  document.querySelectorAll('.export-choice, .export-option').forEach(option => {
     option.addEventListener('click', () => {
       modal.classList.remove('show');
       const type = option.dataset.type;

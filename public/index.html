@@ -4,102 +4,99 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calendrier des Évaluations - KIS</title>
-  <link rel="stylesheet" href="style.css?v=1765054000">
+  <link rel="stylesheet" href="style.css?v=2025120701">
   <link rel="icon" href="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
 </head>
 <body>
   
-  <!-- HEADER -->
+  <!-- HEADER AVEC LOGO CENTRÉ -->
   <header class="header">
     <div class="container">
-      <!-- Logo centré -->
-      <div class="logo-container">
-        <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="Al Kawthar Logo" class="logo">
+      
+      <!-- Logo Al Kawthar centré -->
+      <div class="logo-wrapper">
+        <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="Al Kawthar Logo" class="main-logo">
       </div>
       
-      <!-- Titre -->
-      <h1 class="title">Calendrier des Évaluations</h1>
-      <p class="subtitle">Kawthar International School - Année 2025-2026</p>
+      <!-- Titre principal -->
+      <h1 class="page-title">Calendrier des Évaluations</h1>
+      <p class="page-subtitle">Kawthar International School - Année 2025-2026</p>
       
-      <!-- Contrôles -->
-      <div class="header-controls">
-        <div class="control-group">
-          <label for="classeSelect">⚫ Classe:</label>
-          <select id="classeSelect" class="select-classe">
-            <option value="PEI1">PEI 1</option>
-            <option value="PEI2">PEI 2</option>
-            <option value="PEI3">PEI 3</option>
-            <option value="PEI4">PEI 4</option>
-            <option value="PEI5">PEI 5</option>
-            <option value="DP1">DP 1</option>
-            <option value="DP2">DP 2</option>
-          </select>
-          <button id="btnExport" class="btn-export">📦 Exporter</button>
-        </div>
+      <!-- Contrôles de sélection -->
+      <div class="controls-wrapper">
+        <label for="classeSelect" class="control-label">⚫ Classe:</label>
+        <select id="classeSelect" class="class-selector">
+          <option value="PEI1">PEI 1</option>
+          <option value="PEI2">PEI 2</option>
+          <option value="PEI3">PEI 3</option>
+          <option value="PEI4">PEI 4</option>
+          <option value="PEI5">PEI 5</option>
+          <option value="DP1">DP 1</option>
+          <option value="DP2">DP 2</option>
+        </select>
+        <button id="btnExport" class="export-button">📦 Exporter</button>
       </div>
       
       <!-- Légende -->
-      <div class="legend">
-        <span class="legend-item">📌 Orientation</span>
-        <span class="legend-item">☀️ Vacances</span>
-        <span class="legend-item">📊 Examens</span>
+      <div class="info-legend">
+        <span class="legend-tag">📌 Orientation</span>
+        <span class="legend-tag">☀️ Vacances</span>
+        <span class="legend-tag">📊 Examens</span>
       </div>
+      
     </div>
   </header>
 
-  <!-- NAVIGATION MATIÈRES -->
-  <nav class="nav-matieres">
+  <!-- NAVIGATION PAR MATIÈRES -->
+  <nav class="subjects-nav">
     <div class="container">
-      <button class="tab-matiere active" data-matiere="all">📊 Toutes les Matières</button>
-      <button class="tab-matiere" data-matiere="Français LL">🇫🇷 Français</button>
-      <button class="tab-matiere" data-matiere="Anglais AL">🇬🇧 Anglais</button>
-      <button class="tab-matiere" data-matiere="Mathématiques">📐 Maths</button>
-      <button class="tab-matiere" data-matiere="Sciences">🔬 Sciences</button>
-      <button class="tab-matiere" data-matiere="IS">🌍 IS</button>
-      <button class="tab-matiere" data-matiere="Arts">🎨 Arts</button>
-      <button class="tab-matiere" data-matiere="Design">💡 Design</button>
+      <button class="subject-tab active" data-matiere="all">📊 Toutes les Matières</button>
+      <button class="subject-tab" data-matiere="Français LL">🇫🇷 Français</button>
+      <button class="subject-tab" data-matiere="Anglais AL">🇬🇧 Anglais</button>
+      <button class="subject-tab" data-matiere="Mathématiques">📐 Maths</button>
+      <button class="subject-tab" data-matiere="Sciences">🔬 Sciences</button>
+      <button class="subject-tab" data-matiere="IS">🌍 IS</button>
+      <button class="subject-tab" data-matiere="Arts">🎨 Arts</button>
+      <button class="subject-tab" data-matiere="Design">💡 Design</button>
     </div>
   </nav>
 
   <!-- CONTENU PRINCIPAL -->
-  <main class="main-content">
+  <main class="main-container">
     <div class="container">
-      <div id="calendrier" class="calendrier">
-        <div class="loading">⏳ Chargement...</div>
+      <div id="calendrier" class="calendar-grid">
+        <div class="loading-state">⏳ Chargement...</div>
       </div>
     </div>
   </main>
 
   <!-- MODAL EXPORT -->
-  <div id="modalExport" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
+  <div id="modalExport" class="export-modal">
+    <div class="modal-box">
+      <div class="modal-header-bar">
         <h2>📦 Options d'Export</h2>
-        <button class="btn-close">&times;</button>
+        <button class="close-button">&times;</button>
       </div>
-      <div class="modal-body">
-        <button class="export-option" data-type="zip">
-          <span class="icon">📦</span>
-          <div class="text">
+      <div class="modal-content-area">
+        <button class="export-choice" data-type="zip">
+          <span class="choice-icon">📦</span>
+          <div class="choice-text">
             <h3>ZIP - Toutes les Matières</h3>
             <p>Un fichier par matière dans un ZIP</p>
           </div>
         </button>
         
-        <button class="export-option" data-type="matiere">
-          <span class="icon">📄</span>
-          <div class="text">
+        <button class="export-choice" data-type="matiere">
+          <span class="choice-icon">📄</span>
+          <div class="choice-text">
             <h3>Matière Actuelle</h3>
             <p>Exporter uniquement la matière sélectionnée</p>
           </div>
         </button>
         
-        <button class="export-option" data-type="complet">
-          <span class="icon">📋</span>
-          <div class="text">
+        <button class="export-choice" data-type="complet">
+          <span class="choice-icon">📋</span>
+          <div class="choice-text">
             <h3>Document Complet</h3>
             <p>Toutes les matières en un seul fichier</p>
           </div>
@@ -109,6 +106,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="script.js?v=1765054000"></script>
+  <script src="script.js?v=2025120701"></script>
 </body>
 </html>
