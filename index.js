@@ -1,4 +1,4 @@
-// index.js (Backend)
+// index.js (Backend) - Version corrigée
 
 require('dotenv').config();
 const express = require('express');
@@ -12,30 +12,63 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 
-// ✅ Correction : compatibilité MONGO_URL / MONGODB_URI (Vercel)
+// === CONFIGURATION MONGODB ===
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URL;
 
+console.log('━'.repeat(60));
+console.log('🔍 Vérification de la configuration MongoDB');
+console.log('━'.repeat(60));
+
 if (!MONGODB_URI) {
-  console.error("❌ Erreur critique : la variable d'environnement MONGODB_URI (ou MONGO_URL) n'est pas définie.");
-  console.error("💡 Assure-toi de l’avoir ajoutée dans Vercel → Settings → Environment Variables.");
-  // process.exit(1); // Commenté pour permettre le mode dégradé
+  console.error("❌ ERREUR CRITIQUE : MONGODB_URI non définie !");
+  console.error("💡 Ajoutez-la dans Vercel → Settings → Environment Variables");
+  console.error("   Exemple: mongodb+srv://user:pass@cluster.mongodb.net/ib-calendar");
+} else {
+  const maskedURI = MONGODB_URI.substring(0, 20) + '...' + MONGODB_URI.substring(MONGODB_URI.length - 10);
+  console.log('✅ MONGODB_URI détectée :', maskedURI);
 }
 
-// ✅ Connexion à MongoDB avec options recommandées
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+// === CONNEXION MONGODB (sans options dépréciées) ===
+console.log('⏳ Tentative de connexion à MongoDB...');
+
+mongoose.connect(MONGODB_URI)
+.then(() => {
+  console.log('━'.repeat(60));
+  console.log('✅✅✅ CONNEXION À MONGODB RÉUSSIE ! ✅✅✅');
+  console.log('📊 Base de données prête');
+  console.log('🎯 Les évaluations peuvent maintenant être enregistrées');
+  console.log('━'.repeat(60));
 })
-.then(() => console.log('✅ Connexion à MongoDB réussie.'))
 .catch(err => {
-  console.error('❌ Erreur de connexion à MongoDB :', err.message);
-  // process.exit(1); // Commenté pour permettre le mode dégradé
+  console.log('━'.repeat(60));
+  console.error('❌❌❌ ERREUR DE CONNEXION MONGODB ❌❌❌');
+  console.error('━'.repeat(60));
+  console.error('📋 Détails de l\'erreur :');
+  console.error('   Message:', err.message);
+  console.error('   Code:', err.code || 'N/A');
+  console.error('   Name:', err.name || 'N/A');
+  console.error('━'.repeat(60));
+  console.error('💡 Solutions possibles :');
+  console.error('   1. Vérifiez que MONGODB_URI est correcte dans Vercel');
+  console.error('   2. Vérifiez que 0.0.0.0/0 est autorisé dans MongoDB Atlas');
+  console.error('   3. Vérifiez le nom d\'utilisateur et mot de passe');
+  console.error('   4. Encodez les caractères spéciaux dans le mot de passe');
+  console.error('━'.repeat(60));
+});
+
+// Gestion des erreurs de connexion après initialisation
+mongoose.connection.on('error', err => {
+  console.error('❌ Erreur MongoDB runtime:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB déconnecté');
 });
 
 // Schéma de l'Évaluation
 const evaluationSchema = new mongoose.Schema({
-  classe: { type: String, required: true },   // Ex: PEI1, DP2
-  semaine: { type: String, required: true },  // Ex: S2, S4, S26
+  classe: { type: String, required: true },
+  semaine: { type: String, required: true },
   matiere: { type: String, required: true },
   unite: { type: String, required: true },
   critere: { type: String, required: true },
@@ -44,7 +77,7 @@ const evaluationSchema = new mongoose.Schema({
 
 const Evaluation = mongoose.model('Evaluation', evaluationSchema);
 
-// --- Routes API ---
+// === ROUTES API ===
 
 // 1️⃣ POST /api/evaluations : Ajouter une évaluation
 app.post('/api/evaluations', async (req, res) => {
@@ -92,7 +125,7 @@ app.post('/api/evaluations', async (req, res) => {
   }
 });
 
-// 2️⃣ GET /api/evaluations?classe=PEI1 : Récupérer les évaluations d’une classe
+// 2️⃣ GET /api/evaluations?classe=PEI1 : Récupérer les évaluations d'une classe
 app.get('/api/evaluations', async (req, res) => {
   try {
     const { classe } = req.query;
@@ -159,15 +192,17 @@ app.delete('/api/evaluations/:id', async (req, res) => {
   }
 });
 
-// 🗂 Servir les fichiers statiques (mode local)
+// 🗂 Servir les fichiers statiques
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 🚀 Démarrage du serveur local (non utilisé sur Vercel)
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
+    console.log('━'.repeat(60));
     console.log(`🚀 Serveur local démarré sur http://localhost:${PORT}`);
+    console.log('━'.repeat(60));
   });
 }
 
-// 🔁 Export Express app pour Vercel (Serverless)
+// 🔁 Export pour Vercel (Serverless)
 module.exports = app;
