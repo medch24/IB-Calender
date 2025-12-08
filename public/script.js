@@ -307,7 +307,7 @@ function openFormAjout(semaine, matiere) {
 // EXPORT WORD (simplifié)
 // ═══════════════════════════════════════════════════════════════
 
-function exportMatiere() {
+async function exportMatiere() {
     if (!classeActuelle) {
         showToast('Sélectionnez une classe', 'warning');
         return;
@@ -320,11 +320,11 @@ function exportMatiere() {
         return;
     }
     
-    generateSimpleDoc(matiereActive, evalsMatiere);
+    await generateWordDoc(matiereActive, evalsMatiere);
     document.getElementById('modalExport').style.display = 'none';
 }
 
-function exportComplet() {
+async function exportComplet() {
     if (!classeActuelle) {
         showToast('Sélectionnez une classe', 'warning');
         return;
@@ -335,11 +335,11 @@ function exportComplet() {
         return;
     }
     
-    generateSimpleDoc('TOUTES MATIÈRES', evaluations);
+    await generateWordDoc('TOUTES MATIÈRES', evaluations);
     document.getElementById('modalExport').style.display = 'none';
 }
 
-function exportZIP() {
+async function exportZIP() {
     if (!classeActuelle) {
         showToast('Sélectionnez une classe', 'warning');
         return;
@@ -348,58 +348,58 @@ function exportZIP() {
     showToast('Export ZIP : Génération en cours...', 'success');
     
     // Pour chaque matière, générer un document
-    MATIERES.forEach(matiere => {
+    for (const matiere of MATIERES) {
         const evalsMatiere = evaluations.filter(e => e.matiere === matiere);
         if (evalsMatiere.length > 0) {
-            generateSimpleDoc(matiere, evalsMatiere);
+            await generateWordDoc(matiere, evalsMatiere);
+            // Petit délai pour permettre les téléchargements multiples
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
-    });
+    }
     
     document.getElementById('modalExport').style.display = 'none';
+    showToast('Tous les documents ont été générés !', 'success');
 }
 
-function generateSimpleDoc(titre, evals) {
-    const timestamp = new Date().toLocaleString('fr-FR');
-    const filename = `Calendrier_${classeActuelle}_${titre.replace(/\s/g, '_')}_${Date.now()}.txt`;
-    
-    let content = `═══════════════════════════════════════════════════════════════
-CALENDRIER DES ÉVALUATIONS - KIS
-═══════════════════════════════════════════════════════════════
-
-Classe: ${classeActuelle}
-Matière: ${titre}
-Date d'export: ${timestamp}
-Total évaluations: ${evals.length}
-
-───────────────────────────────────────────────────────────────\n\n`;
-    
-    SEMAINES.forEach(semaine => {
-        const evalsWeek = evals.filter(e => e.semaine === semaine.id);
-        if (evalsWeek.length > 0) {
-            content += `${semaine.label} (${semaine.dates})\n`;
-            content += `─────────────────────────────────────\n`;
-            evalsWeek.forEach(e => {
-                content += `  • ${e.matiere} - ${e.unite} - Critère: ${e.critere}\n`;
-            });
-            content += `\n`;
+async function generateWordDoc(titre, evals) {
+    try {
+        console.log(`📄 Génération Word : ${titre} (${evals.length} évaluations)`);
+        
+        showToast('Génération du document Word...', 'success');
+        
+        const response = await fetch('/api/export', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                classe: classeActuelle,
+                matiere: titre,
+                evaluations: evals
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Erreur génération');
         }
-    });
-    
-    content += `\n═══════════════════════════════════════════════════════════════
-Généré le ${timestamp}
-Kawthar International School
-═══════════════════════════════════════════════════════════════`;
-    
-    // Télécharger le fichier
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    showToast(`Document ${titre} exporté !`, 'success');
+        
+        // Télécharger le fichier
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Calendrier_${classeActuelle}_${titre.replace(/\s/g, '_')}_${Date.now()}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        console.log(`✅ Document Word téléchargé`);
+        showToast(`Document ${titre} exporté !`, 'success');
+        
+    } catch (error) {
+        console.error('❌ Erreur export Word:', error);
+        showToast('Erreur lors de l\'export: ' + error.message, 'error');
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════

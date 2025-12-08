@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// CORS headers pour Vercel
+// CORS headers
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
@@ -26,54 +26,56 @@ app.use((req, res, next) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// CONFIGURATION MONGODB
+// CONFIGURATION MONGODB - CONNEXION SERVERLESS
 // ═══════════════════════════════════════════════════════════════
 
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URL;
 
-console.log('━'.repeat(60));
-console.log('🔍 Configuration MongoDB');
-console.log('━'.repeat(60));
+let cachedDb = null;
 
-if (!MONGODB_URI) {
-  console.error('❌ MONGODB_URI non définie !');
-  console.error('💡 Configurez-la dans Vercel → Environment Variables');
-} else {
+async function connectToDatabase() {
+  if (cachedDb && mongoose.connection.readyState === 1) {
+    console.log('✅ Utilisation connexion MongoDB existante');
+    return cachedDb;
+  }
+
+  console.log('━'.repeat(60));
+  console.log('🔍 Configuration MongoDB');
+  console.log('━'.repeat(60));
+
+  if (!MONGODB_URI) {
+    console.error('❌ MONGODB_URI non définie !');
+    console.error('💡 Configurez-la dans Vercel → Environment Variables');
+    throw new Error('MONGODB_URI non configurée');
+  }
+
   const masked = MONGODB_URI.substring(0, 20) + '***' + MONGODB_URI.substring(MONGODB_URI.length - 15);
   console.log('✅ URI détectée :', masked);
-}
+  console.log('⏳ Connexion à MongoDB...');
 
-// Connexion MongoDB (sans options dépréciées)
-console.log('⏳ Connexion à MongoDB...');
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
 
-mongoose.connect(MONGODB_URI)
-  .then(() => {
+    cachedDb = mongoose.connection;
+
     console.log('━'.repeat(60));
     console.log('✅ CONNEXION MONGODB RÉUSSIE');
     console.log('📊 Base de données prête');
     console.log('━'.repeat(60));
-  })
-  .catch(err => {
+
+    return cachedDb;
+  } catch (err) {
     console.error('━'.repeat(60));
     console.error('❌ ERREUR CONNEXION MONGODB');
     console.error('━'.repeat(60));
     console.error('Message:', err.message);
-    console.error('');
-    console.error('💡 Solutions :');
-    console.error('1. Vérifiez MONGODB_URI dans Vercel');
-    console.error('2. Autorisez 0.0.0.0/0 dans MongoDB Atlas Network Access');
-    console.error('3. Vérifiez username/password');
     console.error('━'.repeat(60));
-  });
-
-// Gestion erreurs connexion
-mongoose.connection.on('error', err => {
-  console.error('❌ Erreur MongoDB:', err.message);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️  MongoDB déconnecté');
-});
+    throw err;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════
 // SCHÉMA MONGOOSE
@@ -90,7 +92,25 @@ const evaluationSchema = new mongoose.Schema({
   collection: 'evaluations'
 });
 
-const Evaluation = mongoose.model('Evaluation', evaluationSchema);
+const Evaluation = mongoose.models.Evaluation || mongoose.model('Evaluation', evaluationSchema);
+
+// ═══════════════════════════════════════════════════════════════
+// MIDDLEWARE - CONNEXION AUTOMATIQUE
+// ═══════════════════════════════════════════════════════════════
+
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('❌ Erreur connexion middleware:', error.message);
+    res.status(503).json({ 
+      error: 'Service temporairement indisponible',
+      message: 'Impossible de se connecter à la base de données',
+      details: error.message
+    });
+  }
+});
 
 // ═══════════════════════════════════════════════════════════════
 // ROUTES API
@@ -107,7 +127,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 📥 GET /api/evaluations - Récupérer les évaluations
+// 📥 GET /api/evaluations
 app.get('/api/evaluations', async (req, res) => {
   try {
     const { classe } = req.query;
@@ -115,14 +135,6 @@ app.get('/api/evaluations', async (req, res) => {
     if (!classe) {
       return res.status(400).json({ 
         error: 'Le paramètre "classe" est requis' 
-      });
-    }
-    
-    // Vérifier connexion MongoDB
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ 
-        error: 'Base de données non disponible',
-        dbState: mongoose.connection.readyState
       });
     }
     
@@ -144,7 +156,7 @@ app.get('/api/evaluations', async (req, res) => {
   }
 });
 
-// 📤 POST /api/evaluations - Ajouter une évaluation
+// 📤 POST /api/evaluations
 app.post('/api/evaluations', async (req, res) => {
   try {
     const { classe, semaine, matiere, unite, critere } = req.body;
@@ -154,14 +166,6 @@ app.post('/api/evaluations', async (req, res) => {
       return res.status(400).json({ 
         error: 'Tous les champs sont requis',
         missing: { classe, semaine, matiere, unite, critere }
-      });
-    }
-    
-    // Vérifier connexion MongoDB
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ 
-        error: 'Base de données non disponible',
-        dbState: mongoose.connection.readyState
       });
     }
     
@@ -190,18 +194,10 @@ app.post('/api/evaluations', async (req, res) => {
   }
 });
 
-// 🗑️ DELETE /api/evaluations/:id - Supprimer une évaluation
+// 🗑️ DELETE /api/evaluations/:id
 app.delete('/api/evaluations/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Vérifier connexion MongoDB
-    if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({ 
-        error: 'Base de données non disponible',
-        dbState: mongoose.connection.readyState
-      });
-    }
     
     console.log(`🗑️  DELETE /api/evaluations/${id}`);
     
@@ -228,15 +224,152 @@ app.delete('/api/evaluations/:id', async (req, res) => {
   }
 });
 
+// 📄 POST /api/export - Génération document Word
+app.post('/api/export', async (req, res) => {
+  try {
+    const { classe, matiere, evaluations } = req.body;
+    
+    if (!classe || !evaluations) {
+      return res.status(400).json({ 
+        error: 'Paramètres manquants' 
+      });
+    }
+    
+    console.log(`📄 Génération document Word - Classe: ${classe}, Évaluations: ${evaluations.length}`);
+    
+    // Import dynamique de docx
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } = require('docx');
+    
+    const titre = matiere || 'TOUTES MATIÈRES';
+    const timestamp = new Date().toLocaleString('fr-FR');
+    
+    // Créer les paragraphes du document
+    const paragraphs = [
+      new Paragraph({
+        text: 'CALENDRIER DES ÉVALUATIONS',
+        heading: HeadingLevel.HEADING_1,
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 400 }
+      }),
+      new Paragraph({
+        text: 'Kawthar International School',
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 200 }
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: 'Classe: ', bold: true }),
+          new TextRun(classe)
+        ],
+        spacing: { after: 100 }
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: 'Matière: ', bold: true }),
+          new TextRun(titre)
+        ],
+        spacing: { after: 100 }
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: 'Date d\'export: ', bold: true }),
+          new TextRun(timestamp)
+        ],
+        spacing: { after: 200 }
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: `Total: ${evaluations.length} évaluation(s)`, bold: true, color: '003366' })
+        ],
+        spacing: { after: 400 }
+      })
+    ];
+    
+    // Grouper par semaine
+    const semaines = {};
+    evaluations.forEach(e => {
+      if (!semaines[e.semaine]) {
+        semaines[e.semaine] = [];
+      }
+      semaines[e.semaine].push(e);
+    });
+    
+    // Ajouter les évaluations par semaine
+    Object.keys(semaines).sort().forEach(semaine => {
+      paragraphs.push(
+        new Paragraph({
+          text: semaine,
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 300, after: 200 }
+        })
+      );
+      
+      semaines[semaine].forEach(e => {
+        paragraphs.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: '• ', color: 'FF8C00' }),
+              new TextRun({ text: e.matiere + ' - ', bold: true }),
+              new TextRun({ text: e.unite + ' - ' }),
+              new TextRun({ text: 'Critère: ' + e.critere, italics: true })
+            ],
+            spacing: { after: 100 }
+          })
+        );
+      });
+    });
+    
+    // Pied de page
+    paragraphs.push(
+      new Paragraph({
+        text: '─'.repeat(60),
+        spacing: { before: 400, after: 200 }
+      }),
+      new Paragraph({
+        text: `Généré le ${timestamp}`,
+        alignment: AlignmentType.CENTER,
+        italics: true
+      })
+    );
+    
+    // Créer le document
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: paragraphs
+      }]
+    });
+    
+    // Générer le buffer
+    const buffer = await Packer.toBuffer(doc);
+    
+    console.log(`✅ Document Word généré (${buffer.length} bytes)`);
+    
+    // Envoyer le fichier
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename="Calendrier_${classe}_${titre.replace(/\s/g, '_')}_${Date.now()}.docx"`);
+    res.send(buffer);
+    
+  } catch (error) {
+    console.error('❌ Erreur génération Word:', error.message);
+    res.status(500).json({ 
+      error: 'Erreur lors de la génération du document',
+      message: error.message 
+    });
+  }
+});
+
 // ═══════════════════════════════════════════════════════════════
 // DÉMARRAGE SERVEUR (local uniquement)
 // ═══════════════════════════════════════════════════════════════
 
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log('━'.repeat(60));
-    console.log(`🚀 Serveur démarré : http://localhost:${PORT}`);
-    console.log('━'.repeat(60));
+  connectToDatabase().then(() => {
+    app.listen(PORT, () => {
+      console.log('━'.repeat(60));
+      console.log(`🚀 Serveur démarré : http://localhost:${PORT}`);
+      console.log('━'.repeat(60));
+    });
   });
 }
 
