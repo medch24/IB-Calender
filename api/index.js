@@ -24,47 +24,98 @@ app.use((req, res, next) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// MONGODB - NATIVE DRIVER (Connexion Globale)
+// MONGODB - NATIVE DRIVER (Connexion Globale Optimisée Vercel)
 // ═══════════════════════════════════════════════════════════════
 
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URL;
 
 if (!MONGODB_URI) {
   console.error('❌ MONGODB_URI non définie !');
+  console.error('Variables disponibles:', Object.keys(process.env).filter(k => k.includes('MONGO')));
 }
 
-let client = null;
-let db = null;
+// Cache global pour réutilisation entre invocations serverless
+let cachedClient = null;
+let cachedDb = null;
+let connectionPromise = null;
 
 async function connectDB() {
-  if (db) {
-    console.log('✅ Réutilisation connexion MongoDB existante');
-    return db;
+  // Réutiliser la connexion existante si disponible
+  if (cachedDb && cachedClient) {
+    try {
+      // Vérifier que la connexion est toujours vivante
+      await cachedDb.admin().ping();
+      console.log('✅ Réutilisation connexion MongoDB existante');
+      return cachedDb;
+    } catch (error) {
+      console.log('⚠️  Connexion expirée, reconnexion...');
+      cachedDb = null;
+      cachedClient = null;
+    }
   }
 
-  console.log('⏳ Connexion à MongoDB...');
+  // Si une connexion est en cours, l'attendre
+  if (connectionPromise) {
+    console.log('⏳ Attente connexion en cours...');
+    return connectionPromise;
+  }
+
+  // Nouvelle connexion
+  console.log('⏳ Nouvelle connexion à MongoDB...');
+  console.log('🔗 URI:', MONGODB_URI ? MONGODB_URI.replace(/:[^:@]+@/, ':****@') : 'NON DÉFINIE');
   
-  try {
-    client = new MongoClient(MONGODB_URI, {
-      maxPoolSize: 10,
-      minPoolSize: 1,
-      maxIdleTimeMS: 60000,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
+  connectionPromise = (async () => {
+    try {
+      const client = new MongoClient(MONGODB_URI, {
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        maxIdleTimeMS: 30000,
+        serverSelectionTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        connectTimeoutMS: 10000,
+        retryWrites: true,
+        retryReads: true,
+        w: 'majority'
+      });
 
-    await client.connect();
-    db = client.db('ibcalender');
+      await client.connect();
+      const db = client.db('ib-calender');
 
-    console.log('✅ CONNEXION MONGODB RÉUSSIE');
-    console.log('📊 Base:', db.databaseName);
+      // Vérifier la connexion
+      await db.admin().ping();
 
-    return db;
-  } catch (error) {
-    console.error('❌ ERREUR CONNEXION MONGODB');
-    console.error('Message:', error.message);
-    throw error;
-  }
+      cachedClient = client;
+      cachedDb = db;
+
+      console.log('✅ CONNEXION MONGODB RÉUSSIE');
+      console.log('📊 Base:', db.databaseName);
+      console.log('🏷️  Collections:', (await db.listCollections().toArray()).map(c => c.name).join(', '));
+
+      connectionPromise = null;
+      return db;
+    } catch (error) {
+      connectionPromise = null;
+      cachedClient = null;
+      cachedDb = null;
+      
+      console.error('❌ ERREUR CONNEXION MONGODB');
+      console.error('Type:', error.name);
+      console.error('Message:', error.message);
+      console.error('Code:', error.code);
+      
+      if (error.message.includes('authentication failed')) {
+        console.error('🔐 Vérifiez le username/password dans MONGODB_URI');
+      } else if (error.message.includes('ENOTFOUND') || error.message.includes('ETIMEDOUT')) {
+        console.error('🌐 Problème réseau ou DNS');
+      } else if (error.message.includes('connection') && error.message.includes('closed')) {
+        console.error('🔒 Vérifiez Network Access dans MongoDB Atlas (IP Whitelist)');
+      }
+      
+      throw error;
+    }
+  })();
+
+  return connectionPromise;
 }
 
 // ═══════════════════════════════════════════════════════════════

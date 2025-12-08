@@ -5,7 +5,9 @@
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
-    "dev": "node api/index.js"
+    "dev": "node api/index.js",
+    "test:connection": "node test-connection.js",
+    "vercel:dev": "vercel dev"
   },
   "keywords": [
     "calendar",
