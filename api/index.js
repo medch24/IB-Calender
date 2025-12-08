@@ -54,7 +54,7 @@ async function connectDB() {
     });
 
     await client.connect();
-    db = client.db('ib-calendar');
+    db = client.db('ibcalender');
 
     console.log('✅ CONNEXION MONGODB RÉUSSIE');
     console.log('📊 Base:', db.databaseName);
