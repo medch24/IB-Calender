@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════════════════════
-// API HEALTH CHECK - Vercel Serverless Function
+// API HEALTH CHECK - Vercel Serverless Function (Supabase)
 // ═══════════════════════════════════════════════════════════════
 
-const { connectToDatabase } = require('../lib/mongodb');
+const { supabase } = require('../lib/supabase');
 
 module.exports = async (req, res) => {
   // CORS headers
@@ -19,17 +19,22 @@ module.exports = async (req, res) => {
   }
 
   try {
-    console.log('🏥 Health check...');
+    console.log('🏥 Health check Supabase...');
     
-    const { db } = await connectToDatabase();
-    const result = await db.admin().ping();
+    // Test connexion avec un simple count
+    const { count, error } = await supabase
+      .from('evaluations')
+      .select('*', { count: 'exact', head: true });
+
+    if (error) throw error;
 
     console.log('✅ Health check réussi');
 
     return res.status(200).json({
       status: 'ok',
-      database: result.ok === 1 ? 'connected' : 'disconnected',
-      db_name: db.databaseName,
+      database: 'supabase',
+      db_type: 'PostgreSQL',
+      evaluations_count: count || 0,
       timestamp: new Date().toISOString(),
       environment: process.env.VERCEL_ENV || 'development'
     });
@@ -38,7 +43,7 @@ module.exports = async (req, res) => {
     
     return res.status(503).json({
       status: 'error',
-      database: 'disconnected',
+      database: 'supabase',
       message: error.message,
       timestamp: new Date().toISOString()
     });

@@ -1,9 +1,8 @@
 // ═══════════════════════════════════════════════════════════════
-// API EVALUATIONS - DELETE BY ID - Vercel Serverless Function
+// API EVALUATIONS - DELETE BY ID - Vercel Serverless Function (Supabase)
 // ═══════════════════════════════════════════════════════════════
 
-const { connectToDatabase } = require('../../lib/mongodb');
-const { ObjectId } = require('mongodb');
+const { supabase } = require('../../lib/supabase');
 
 module.exports = async (req, res) => {
   // CORS headers
@@ -28,22 +27,26 @@ module.exports = async (req, res) => {
 
     console.log(`🗑️  DELETE /api/evaluations/${id}`);
 
-    const { db } = await connectToDatabase();
-    const collection = db.collection('evaluations');
+    const { data, error } = await supabase
+      .from('evaluations')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
 
-    const result = await collection.deleteOne({
-      _id: new ObjectId(id)
-    });
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ error: 'Évaluation non trouvée' });
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Évaluation non trouvée' });
+      }
+      throw error;
     }
 
     console.log(`✅ Évaluation supprimée: ${id}`);
 
     return res.status(200).json({
       message: 'Évaluation supprimée',
-      deletedId: id
+      deletedId: id,
+      deleted: data
     });
 
   } catch (error) {

@@ -1,9 +1,8 @@
 // ═══════════════════════════════════════════════════════════════
-// API EVALUATIONS - GET & POST - Vercel Serverless Function
+// API EVALUATIONS - GET & POST - Vercel Serverless Function (Supabase)
 // ═══════════════════════════════════════════════════════════════
 
-const { connectToDatabase } = require('../../lib/mongodb');
-const { ObjectId } = require('mongodb');
+const { supabase } = require('../../lib/supabase');
 
 module.exports = async (req, res) => {
   // CORS headers
@@ -16,29 +15,32 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { db } = await connectToDatabase();
-    const collection = db.collection('evaluations');
-
     // ═══════════════════════════════════════════════════════════
     // GET /api/evaluations?classe=PEI+1
     // ═══════════════════════════════════════════════════════════
     if (req.method === 'GET') {
       const { classe } = req.query;
 
-      if (!classe) {
-        return res.status(400).json({ error: 'Paramètre "classe" requis' });
+      console.log(`📥 GET /api/evaluations${classe ? `?classe=${classe}` : ''}`);
+
+      let query = supabase
+        .from('evaluations')
+        .select('*')
+        .order('semaine', { ascending: true })
+        .order('matiere', { ascending: true });
+
+      // Filtrer par classe si fourni
+      if (classe) {
+        query = query.eq('classe', classe.trim());
       }
 
-      console.log(`📥 GET /api/evaluations?classe=${classe}`);
+      const { data, error } = await query;
 
-      const evaluations = await collection
-        .find({ classe: classe.trim() })
-        .sort({ semaine: 1, matiere: 1 })
-        .toArray();
+      if (error) throw error;
 
-      console.log(`✅ ${evaluations.length} évaluation(s) trouvée(s)`);
+      console.log(`✅ ${data.length} évaluation(s) trouvée(s)`);
 
-      return res.status(200).json(evaluations);
+      return res.status(200).json(data);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -59,17 +61,20 @@ module.exports = async (req, res) => {
         matiere: matiere.trim(),
         unite: unite.trim(),
         critere: critere.trim(),
-        createdAt: new Date()
+        created_at: new Date().toISOString()
       };
 
-      const result = await collection.insertOne(evaluation);
+      const { data, error } = await supabase
+        .from('evaluations')
+        .insert([evaluation])
+        .select()
+        .single();
 
-      console.log(`✅ Évaluation enregistrée: ${result.insertedId}`);
+      if (error) throw error;
 
-      return res.status(201).json({
-        _id: result.insertedId,
-        ...evaluation
-      });
+      console.log(`✅ Évaluation enregistrée: ${data.id}`);
+
+      return res.status(201).json(data);
     }
 
     // Méthode non supportée
