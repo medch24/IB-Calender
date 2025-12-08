@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Complet - IB Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .test-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .status {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .checklist {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .checklist-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checklist-item.checked {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .checklist-item.unchecked {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .checklist-item.failed {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .icon {
+            font-size: 24px;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Complet - IB Calendar</h1>
+        <p class="subtitle">Vérification de toutes les fonctionnalités</p>
+
+        <!-- Test 1: Connexion MongoDB -->
+        <div class="test-section">
+            <h2>1️⃣ Test Connexion MongoDB</h2>
+            <p>Vérifier que l'API peut se connecter à MongoDB Atlas</p>
+            <div class="test-controls">
+                <button onclick="testMongoConnection()">🔌 Tester Connexion</button>
+                <button onclick="testHealthCheck()">❤️ Health Check</button>
+            </div>
+            <div id="mongo-result" class="result">En attente du test...</div>
+        </div>
+
+        <!-- Test 2: Ajout d'évaluations -->
+        <div class="test-section">
+            <h2>2️⃣ Test Ajout Évaluation</h2>
+            <p>Tester l'enregistrement d'une évaluation dans MongoDB</p>
+            
+            <div class="grid">
+                <div class="input-group">
+                    <label for="test-classe">Classe:</label>
+                    <select id="test-classe">
+                        <option value="PEI 1">PEI 1</option>
+                        <option value="PEI 2">PEI 2</option>
+                        <option value="PEI 3">PEI 3</option>
+                        <option value="PEI 4">PEI 4</option>
+                        <option value="PEI 5">PEI 5</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="test-semaine">Semaine:</label>
+                    <input type="text" id="test-semaine" value="Semaine 1" placeholder="Semaine 1">
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="input-group">
+                    <label for="test-matiere">Matière:</label>
+                    <select id="test-matiere">
+                        <option value="Langues et Littérature">Langues et Littérature</option>
+                        <option value="Sciences">Sciences</option>
+                        <option value="Mathématiques">Mathématiques</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Individus et Sociétés">Individus et Sociétés</option>
+                        <option value="Éducation Physique">Éducation Physique</option>
+                        <option value="Design">Design</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="test-unite">Unité:</label>
+                    <input type="text" id="test-unite" value="Unité 1" placeholder="Unité 1">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="test-critere">Critère:</label>
+                <input type="text" id="test-critere" value="Critère A" placeholder="Critère A">
+            </div>
+
+            <div class="test-controls">
+                <button onclick="testAddEvaluation()">➕ Ajouter Évaluation</button>
+            </div>
+            <div id="add-result" class="result">En attente du test...</div>
+        </div>
+
+        <!-- Test 3: Récupération d'évaluations -->
+        <div class="test-section">
+            <h2>3️⃣ Test Récupération Évaluations</h2>
+            <p>Charger toutes les évaluations d'une classe</p>
+            
+            <div class="input-group">
+                <label for="load-classe">Classe:</label>
+                <select id="load-classe">
+                    <option value="PEI 1">PEI 1</option>
+                    <option value="PEI 2">PEI 2</option>
+                    <option value="PEI 3">PEI 3</option>
+                    <option value="PEI 4">PEI 4</option>
+                    <option value="PEI 5">PEI 5</option>
+                </select>
+            </div>
+
+            <div class="test-controls">
+                <button onclick="testLoadEvaluations()">📥 Charger Évaluations</button>
+            </div>
+            <div id="load-result" class="result">En attente du test...</div>
+        </div>
+
+        <!-- Test 4: Export Word -->
+        <div class="test-section">
+            <h2>4️⃣ Test Export Word</h2>
+            <p>Générer un document Word à partir des évaluations</p>
+            
+            <div class="test-controls">
+                <button onclick="testWordExport()">📄 Exporter en Word (.docx)</button>
+            </div>
+            <div id="export-result" class="result">En attente du test...</div>
+        </div>
+
+        <!-- Checklist finale -->
+        <div class="test-section">
+            <h2>✅ Checklist Finale</h2>
+            <p>Résumé des tests effectués</p>
+            <div id="checklist" class="checklist">
+                <div class="checklist-item unchecked">
+                    <span class="icon">⏳</span>
+                    <span>Connexion MongoDB</span>
+                </div>
+                <div class="checklist-item unchecked">
+                    <span class="icon">⏳</span>
+                    <span>Health Check API</span>
+                </div>
+                <div class="checklist-item unchecked">
+                    <span class="icon">⏳</span>
+                    <span>Ajout évaluation</span>
+                </div>
+                <div class="checklist-item unchecked">
+                    <span class="icon">⏳</span>
+                    <span>Récupération évaluations</span>
+                </div>
+                <div class="checklist-item unchecked">
+                    <span class="icon">⏳</span>
+                    <span>Export Word</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        let lastAddedId = null;
+
+        function updateChecklist(index, status) {
+            const items = document.querySelectorAll('.checklist-item');
+            const item = items[index];
+            item.className = 'checklist-item ' + status;
+            
+            const icon = item.querySelector('.icon');
+            if (status === 'checked') {
+                icon.textContent = '✅';
+            } else if (status === 'failed') {
+                icon.textContent = '❌';
+            }
+        }
+
+        async function testMongoConnection() {
+            const resultDiv = document.getElementById('mongo-result');
+            resultDiv.innerHTML = '<div class="status info">⏳ Test en cours...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+
+                if (data.status === 'ok' && data.database === 'connected') {
+                    resultDiv.innerHTML = `
+                        <div class="status success">✅ CONNEXION RÉUSSIE !</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    updateChecklist(0, 'checked');
+                } else {
+                    throw new Error('Database not connected');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ ERREUR DE CONNEXION</div>
+                    <p><strong>Message:</strong> ${error.message}</p>
+                    <p><strong>Solution:</strong> Vérifiez que le serveur est démarré avec: <code>npm start</code></p>
+                `;
+                updateChecklist(0, 'failed');
+            }
+        }
+
+        async function testHealthCheck() {
+            const resultDiv = document.getElementById('mongo-result');
+            resultDiv.innerHTML = '<div class="status info">⏳ Health check en cours...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+
+                resultDiv.innerHTML = `
+                    <div class="status ${data.status === 'ok' ? 'success' : 'error'}">
+                        ${data.status === 'ok' ? '✅' : '❌'} Health Check
+                    </div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                updateChecklist(1, data.status === 'ok' ? 'checked' : 'failed');
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ ERREUR</div>
+                    <p>${error.message}</p>
+                `;
+                updateChecklist(1, 'failed');
+            }
+        }
+
+        async function testAddEvaluation() {
+            const resultDiv = document.getElementById('add-result');
+            resultDiv.innerHTML = '<div class="status info">⏳ Ajout en cours...</div>';
+
+            const data = {
+                classe: document.getElementById('test-classe').value,
+                semaine: document.getElementById('test-semaine').value,
+                matiere: document.getElementById('test-matiere').value,
+                unite: document.getElementById('test-unite').value,
+                critere: document.getElementById('test-critere').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/evaluations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    lastAddedId = result._id;
+                    resultDiv.innerHTML = `
+                        <div class="status success">✅ ÉVALUATION ENREGISTRÉE !</div>
+                        <p><strong>ID:</strong> ${result._id}</p>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                        <p style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px;">
+                            💡 <strong>Conseil:</strong> Testez maintenant le chargement des évaluations pour vérifier que celle-ci est bien récupérée.
+                        </p>
+                    `;
+                    updateChecklist(2, 'checked');
+                } else {
+                    throw new Error(result.error || 'Erreur ajout');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ ERREUR AJOUT</div>
+                    <p>${error.message}</p>
+                `;
+                updateChecklist(2, 'failed');
+            }
+        }
+
+        async function testLoadEvaluations() {
+            const resultDiv = document.getElementById('load-result');
+            const classe = document.getElementById('load-classe').value;
+            
+            resultDiv.innerHTML = '<div class="status info">⏳ Chargement...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/evaluations?classe=${encodeURIComponent(classe)}`);
+                const evaluations = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">✅ ${evaluations.length} ÉVALUATION(S) TROUVÉE(S)</div>
+                        <pre>${JSON.stringify(evaluations, null, 2)}</pre>
+                    `;
+                    updateChecklist(3, 'checked');
+                    
+                    // Store for export test
+                    window.testEvaluations = evaluations;
+                } else {
+                    throw new Error('Erreur chargement');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ ERREUR CHARGEMENT</div>
+                    <p>${error.message}</p>
+                `;
+                updateChecklist(3, 'failed');
+            }
+        }
+
+        async function testWordExport() {
+            const resultDiv = document.getElementById('export-result');
+            
+            if (!window.testEvaluations || window.testEvaluations.length === 0) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ AUCUNE ÉVALUATION</div>
+                    <p>Veuillez d'abord charger des évaluations avec le test 3️⃣</p>
+                `;
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="status info">⏳ Génération du document Word...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/export`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        classe: 'PEI 1',
+                        matiere: 'Test Export',
+                        evaluations: window.testEvaluations
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erreur génération');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Test_Export_${Date.now()}.docx`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                resultDiv.innerHTML = `
+                    <div class="status success">✅ DOCUMENT WORD TÉLÉCHARGÉ !</div>
+                    <p>Vérifiez le fichier téléchargé: <strong>Test_Export_${Date.now()}.docx</strong></p>
+                    <p style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 5px;">
+                        ✅ <strong>Export Word fonctionnel !</strong> Le fichier DOCX a été généré avec succès.
+                    </p>
+                `;
+                updateChecklist(4, 'checked');
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ ERREUR EXPORT WORD</div>
+                    <p>${error.message}</p>
+                `;
+                updateChecklist(4, 'failed');
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('🧪 Page de test chargée');
+            console.log('📡 API Base URL:', API_BASE);
+        });
+    </script>
+</body>
+</html>
