@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════════
-// CALENDRIER DES ÉVALUATIONS KIS - API BACKEND
+// CALENDRIER KIS - API BACKEND AVEC MONGODB NATIVE DRIVER
 // ═══════════════════════════════════════════════════════════════
 
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const { MongoClient, ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -14,199 +14,170 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// CORS headers
+// CORS
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
 
 // ═══════════════════════════════════════════════════════════════
-// CONFIGURATION MONGODB - CONNEXION SERVERLESS
+// MONGODB - NATIVE DRIVER (Connexion Globale)
 // ═══════════════════════════════════════════════════════════════
 
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URL;
 
-let cachedDb = null;
+if (!MONGODB_URI) {
+  console.error('❌ MONGODB_URI non définie !');
+}
 
-async function connectToDatabase() {
-  if (cachedDb && mongoose.connection.readyState === 1) {
-    console.log('✅ Utilisation connexion MongoDB existante');
-    return cachedDb;
+let client = null;
+let db = null;
+
+async function connectDB() {
+  if (db) {
+    console.log('✅ Réutilisation connexion MongoDB existante');
+    return db;
   }
 
-  console.log('━'.repeat(60));
-  console.log('🔍 Configuration MongoDB');
-  console.log('━'.repeat(60));
-
-  if (!MONGODB_URI) {
-    console.error('❌ MONGODB_URI non définie !');
-    console.error('💡 Configurez-la dans Vercel → Environment Variables');
-    throw new Error('MONGODB_URI non configurée');
-  }
-
-  const masked = MONGODB_URI.substring(0, 20) + '***' + MONGODB_URI.substring(MONGODB_URI.length - 15);
-  console.log('✅ URI détectée :', masked);
   console.log('⏳ Connexion à MongoDB...');
-
+  
   try {
-    await mongoose.connect(MONGODB_URI, {
+    client = new MongoClient(MONGODB_URI, {
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      maxIdleTimeMS: 60000,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
 
-    cachedDb = mongoose.connection;
+    await client.connect();
+    db = client.db('ib-calendar');
 
-    console.log('━'.repeat(60));
     console.log('✅ CONNEXION MONGODB RÉUSSIE');
-    console.log('📊 Base de données prête');
-    console.log('━'.repeat(60));
+    console.log('📊 Base:', db.databaseName);
 
-    return cachedDb;
-  } catch (err) {
-    console.error('━'.repeat(60));
+    return db;
+  } catch (error) {
     console.error('❌ ERREUR CONNEXION MONGODB');
-    console.error('━'.repeat(60));
-    console.error('Message:', err.message);
-    console.error('━'.repeat(60));
-    throw err;
+    console.error('Message:', error.message);
+    throw error;
   }
 }
-
-// ═══════════════════════════════════════════════════════════════
-// SCHÉMA MONGOOSE
-// ═══════════════════════════════════════════════════════════════
-
-const evaluationSchema = new mongoose.Schema({
-  classe: { type: String, required: true, trim: true },
-  semaine: { type: String, required: true, trim: true },
-  matiere: { type: String, required: true, trim: true },
-  unite: { type: String, required: true, trim: true },
-  critere: { type: String, required: true, trim: true },
-  createdAt: { type: Date, default: Date.now }
-}, {
-  collection: 'evaluations'
-});
-
-const Evaluation = mongoose.models.Evaluation || mongoose.model('Evaluation', evaluationSchema);
-
-// ═══════════════════════════════════════════════════════════════
-// MIDDLEWARE - CONNEXION AUTOMATIQUE
-// ═══════════════════════════════════════════════════════════════
-
-app.use(async (req, res, next) => {
-  try {
-    await connectToDatabase();
-    next();
-  } catch (error) {
-    console.error('❌ Erreur connexion middleware:', error.message);
-    res.status(503).json({ 
-      error: 'Service temporairement indisponible',
-      message: 'Impossible de se connecter à la base de données',
-      details: error.message
-    });
-  }
-});
 
 // ═══════════════════════════════════════════════════════════════
 // ROUTES API
 // ═══════════════════════════════════════════════════════════════
 
-// 🏥 Health check
-app.get('/api/health', (req, res) => {
-  const dbState = mongoose.connection.readyState;
-  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-  res.json({
-    status: 'ok',
-    database: states[dbState],
-    timestamp: new Date().toISOString()
-  });
+// Health check
+app.get('/api/health', async (req, res) => {
+  try {
+    const database = await connectDB();
+    const result = await database.command({ ping: 1 });
+    res.json({
+      status: 'ok',
+      database: result.ok === 1 ? 'connected' : 'disconnected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'error',
+      message: error.message
+    });
+  }
 });
 
-// 📥 GET /api/evaluations
+// GET /api/evaluations
 app.get('/api/evaluations', async (req, res) => {
   try {
     const { classe } = req.query;
     
     if (!classe) {
-      return res.status(400).json({ 
-        error: 'Le paramètre "classe" est requis' 
-      });
+      return res.status(400).json({ error: 'Paramètre "classe" requis' });
     }
+
+    const database = await connectDB();
+    const collection = database.collection('evaluations');
     
     console.log(`📥 GET /api/evaluations?classe=${classe}`);
     
-    const evaluations = await Evaluation.find({ classe: classe.trim() })
+    const evaluations = await collection
+      .find({ classe: classe.trim() })
       .sort({ semaine: 1, matiere: 1 })
-      .lean();
+      .toArray();
     
     console.log(`✅ ${evaluations.length} évaluation(s) trouvée(s)`);
     
     res.json(evaluations);
   } catch (error) {
-    console.error('❌ Erreur GET /api/evaluations:', error.message);
+    console.error('❌ Erreur GET:', error.message);
     res.status(500).json({ 
-      error: 'Erreur lors de la récupération',
+      error: 'Erreur récupération',
       message: error.message 
     });
   }
 });
 
-// 📤 POST /api/evaluations
+// POST /api/evaluations
 app.post('/api/evaluations', async (req, res) => {
   try {
     const { classe, semaine, matiere, unite, critere } = req.body;
     
-    // Validation
     if (!classe || !semaine || !matiere || !unite || !critere) {
       return res.status(400).json({ 
-        error: 'Tous les champs sont requis',
-        missing: { classe, semaine, matiere, unite, critere }
+        error: 'Tous les champs sont requis' 
       });
     }
+
+    const database = await connectDB();
+    const collection = database.collection('evaluations');
     
-    console.log(`📤 POST /api/evaluations - Classe: ${classe}, Semaine: ${semaine}, Matière: ${matiere}`);
+    console.log(`📤 POST /api/evaluations - ${classe} ${semaine} ${matiere}`);
     
-    // Créer et sauvegarder
-    const evaluation = new Evaluation({
+    const evaluation = {
       classe: classe.trim(),
       semaine: semaine.trim(),
       matiere: matiere.trim(),
       unite: unite.trim(),
-      critere: critere.trim()
+      critere: critere.trim(),
+      createdAt: new Date()
+    };
+    
+    const result = await collection.insertOne(evaluation);
+    
+    console.log(`✅ Évaluation enregistrée: ${result.insertedId}`);
+    
+    res.status(201).json({
+      _id: result.insertedId,
+      ...evaluation
     });
-    
-    const saved = await evaluation.save();
-    
-    console.log(`✅ Évaluation enregistrée: ${saved._id}`);
-    
-    res.status(201).json(saved);
   } catch (error) {
-    console.error('❌ Erreur POST /api/evaluations:', error.message);
+    console.error('❌ Erreur POST:', error.message);
     res.status(500).json({ 
-      error: 'Erreur lors de l\'enregistrement',
+      error: 'Erreur enregistrement',
       message: error.message 
     });
   }
 });
 
-// 🗑️ DELETE /api/evaluations/:id
+// DELETE /api/evaluations/:id
 app.delete('/api/evaluations/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
+    const database = await connectDB();
+    const collection = database.collection('evaluations');
+    
     console.log(`🗑️  DELETE /api/evaluations/${id}`);
     
-    const deleted = await Evaluation.findByIdAndDelete(id);
+    const result = await collection.deleteOne({ 
+      _id: new ObjectId(id) 
+    });
     
-    if (!deleted) {
-      return res.status(404).json({ 
-        error: 'Évaluation non trouvée' 
-      });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Évaluation non trouvée' });
     }
     
     console.log(`✅ Évaluation supprimée: ${id}`);
@@ -216,34 +187,30 @@ app.delete('/api/evaluations/:id', async (req, res) => {
       deletedId: id 
     });
   } catch (error) {
-    console.error('❌ Erreur DELETE /api/evaluations:', error.message);
+    console.error('❌ Erreur DELETE:', error.message);
     res.status(500).json({ 
-      error: 'Erreur lors de la suppression',
+      error: 'Erreur suppression',
       message: error.message 
     });
   }
 });
 
-// 📄 POST /api/export - Génération document Word
+// POST /api/export
 app.post('/api/export', async (req, res) => {
   try {
     const { classe, matiere, evaluations } = req.body;
     
     if (!classe || !evaluations) {
-      return res.status(400).json({ 
-        error: 'Paramètres manquants' 
-      });
+      return res.status(400).json({ error: 'Paramètres manquants' });
     }
-    
-    console.log(`📄 Génération document Word - Classe: ${classe}, Évaluations: ${evaluations.length}`);
-    
-    // Import dynamique de docx
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } = require('docx');
+
+    console.log(`📄 Export Word - ${classe} - ${evaluations.length} éval.`);
+
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = require('docx');
     
     const titre = matiere || 'TOUTES MATIÈRES';
     const timestamp = new Date().toLocaleString('fr-FR');
     
-    // Créer les paragraphes du document
     const paragraphs = [
       new Paragraph({
         text: 'CALENDRIER DES ÉVALUATIONS',
@@ -272,14 +239,7 @@ app.post('/api/export', async (req, res) => {
       }),
       new Paragraph({
         children: [
-          new TextRun({ text: 'Date d\'export: ', bold: true }),
-          new TextRun(timestamp)
-        ],
-        spacing: { after: 200 }
-      }),
-      new Paragraph({
-        children: [
-          new TextRun({ text: `Total: ${evaluations.length} évaluation(s)`, bold: true, color: '003366' })
+          new TextRun({ text: `Total: ${evaluations.length} évaluation(s)`, bold: true })
         ],
         spacing: { after: 400 }
       })
@@ -288,13 +248,10 @@ app.post('/api/export', async (req, res) => {
     // Grouper par semaine
     const semaines = {};
     evaluations.forEach(e => {
-      if (!semaines[e.semaine]) {
-        semaines[e.semaine] = [];
-      }
+      if (!semaines[e.semaine]) semaines[e.semaine] = [];
       semaines[e.semaine].push(e);
     });
     
-    // Ajouter les évaluations par semaine
     Object.keys(semaines).sort().forEach(semaine => {
       paragraphs.push(
         new Paragraph({
@@ -308,10 +265,10 @@ app.post('/api/export', async (req, res) => {
         paragraphs.push(
           new Paragraph({
             children: [
-              new TextRun({ text: '• ', color: 'FF8C00' }),
+              new TextRun({ text: '• ' }),
               new TextRun({ text: e.matiere + ' - ', bold: true }),
               new TextRun({ text: e.unite + ' - ' }),
-              new TextRun({ text: 'Critère: ' + e.critere, italics: true })
+              new TextRun({ text: 'Critère: ' + e.critere })
             ],
             spacing: { after: 100 }
           })
@@ -319,59 +276,37 @@ app.post('/api/export', async (req, res) => {
       });
     });
     
-    // Pied de page
-    paragraphs.push(
-      new Paragraph({
-        text: '─'.repeat(60),
-        spacing: { before: 400, after: 200 }
-      }),
-      new Paragraph({
-        text: `Généré le ${timestamp}`,
-        alignment: AlignmentType.CENTER,
-        italics: true
-      })
-    );
-    
-    // Créer le document
     const doc = new Document({
-      sections: [{
-        properties: {},
-        children: paragraphs
-      }]
+      sections: [{ properties: {}, children: paragraphs }]
     });
     
-    // Générer le buffer
     const buffer = await Packer.toBuffer(doc);
     
-    console.log(`✅ Document Word généré (${buffer.length} bytes)`);
+    console.log(`✅ Document généré (${buffer.length} bytes)`);
     
-    // Envoyer le fichier
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    res.setHeader('Content-Disposition', `attachment; filename="Calendrier_${classe}_${titre.replace(/\s/g, '_')}_${Date.now()}.docx"`);
+    res.setHeader('Content-Disposition', `attachment; filename="Calendrier_${classe}_${titre.replace(/\s/g, '_')}.docx"`);
     res.send(buffer);
     
   } catch (error) {
-    console.error('❌ Erreur génération Word:', error.message);
+    console.error('❌ Erreur export:', error.message);
     res.status(500).json({ 
-      error: 'Erreur lors de la génération du document',
+      error: 'Erreur génération document',
       message: error.message 
     });
   }
 });
 
 // ═══════════════════════════════════════════════════════════════
-// DÉMARRAGE SERVEUR (local uniquement)
+// DÉMARRAGE
 // ═══════════════════════════════════════════════════════════════
 
 if (!process.env.VERCEL) {
-  connectToDatabase().then(() => {
+  connectDB().then(() => {
     app.listen(PORT, () => {
-      console.log('━'.repeat(60));
-      console.log(`🚀 Serveur démarré : http://localhost:${PORT}`);
-      console.log('━'.repeat(60));
+      console.log(`🚀 Serveur: http://localhost:${PORT}`);
     });
   });
 }
 
-// Export pour Vercel Serverless
 module.exports = app;
