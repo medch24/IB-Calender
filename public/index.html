@@ -1,234 +1,140 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendrier des Évaluations - KIS</title>
-  
-  <!-- FORCE NO CACHE -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  
-  <!-- CSS INLINE POUR FORCER LE STYLE -->
-  <style>
-    /* RESET BRUTAL */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    /* VARIABLES */
-    :root {
-      --bleu-kawthar: #003366;
-      --gris-bordure: #CCCCCC;
-      --blanc: #FFFFFF;
-      --gris-fond: #F5F5F5;
-      --beige-fond: #FFF8E8;
-      --texte-noir: #333333;
-      --texte-gris: #666666;
-      --orange: #FF9933;
-    }
-    
-    /* BODY */
-    body {
-      font-family: Arial, Helvetica, sans-serif !important;
-      background: var(--gris-fond) !important;
-      color: var(--texte-noir) !important;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-    
-    /* HEADER - FORCE BLANC */
-    .header {
-      background: var(--blanc) !important;
-      padding: 25px 0 20px;
-      border-bottom: 2px solid var(--gris-bordure) !important;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .logo-wrapper {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    
-    .main-logo {
-      width: 200px !important;
-      height: auto;
-      max-width: 100%;
-      display: block;
-      margin: 0 auto;
-    }
-    
-    .page-title {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--texte-noir) !important;
-      margin: 15px 0 8px;
-    }
-    
-    .page-subtitle {
-      text-align: center;
-      font-size: 1rem;
-      color: var(--texte-gris);
-      margin-bottom: 20px;
-    }
-    
-    .controls-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px;
-      margin: 20px 0;
-      flex-wrap: wrap;
-    }
-    
-    .control-label {
-      font-weight: bold;
-      font-size: 0.95rem;
-      color: var(--texte-noir);
-    }
-    
-    .class-selector {
-      padding: 10px 18px;
-      border: 1px solid var(--gris-bordure) !important;
-      border-radius: 4px;
-      background: var(--blanc) !important;
-      color: var(--texte-noir);
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      min-width: 120px;
-    }
-    
-    .export-button {
-      padding: 10px 24px;
-      background: var(--orange) !important;
-      color: white !important;
-      border: 1px solid darkorange !important;
-      border-radius: 4px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-    
-    .info-legend {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      flex-wrap: wrap;
-      padding-top: 15px;
-      border-top: 1px solid var(--gris-bordure);
-      font-size: 0.88rem;
-    }
-  </style>
-  
-  <link rel="stylesheet" href="style.css?v=20251207FORCE">
-  <link rel="icon" href="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Calendrier des Évaluations - KIS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.4/docxtemplater.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip-utils/0.1.0/pizzip-utils.min.js"></script>
 </head>
 <body>
-  
-  <!-- HEADER AVEC LOGO CENTRÉ -->
-  <header class="header">
-    <div class="container">
-      
-      <!-- Logo Al Kawthar centré -->
-      <div class="logo-wrapper">
-        <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="Al Kawthar Logo" class="main-logo">
-      </div>
-      
-      <!-- Titre principal -->
-      <h1 class="page-title">Calendrier des Évaluations</h1>
-      <p class="page-subtitle">Kawthar International School - Année 2025-2026</p>
-      
-      <!-- Contrôles de sélection -->
-      <div class="controls-wrapper">
-        <label for="classeSelect" class="control-label">⚫ Classe:</label>
-        <select id="classeSelect" class="class-selector">
-          <option value="PEI1">PEI 1</option>
-          <option value="PEI2">PEI 2</option>
-          <option value="PEI3">PEI 3</option>
-          <option value="PEI4">PEI 4</option>
-          <option value="PEI5">PEI 5</option>
-          <option value="DP1">DP 1</option>
-          <option value="DP2">DP 2</option>
-        </select>
-        <button id="btnExport" class="export-button">📦 Exporter</button>
-      </div>
-      
-      <!-- Légende -->
-      <div class="info-legend">
-        <span class="legend-tag">📌 Orientation</span>
-        <span class="legend-tag">☀️ Vacances</span>
-        <span class="legend-tag">📊 Examens</span>
-      </div>
-      
-    </div>
-  </header>
-
-  <!-- NAVIGATION PAR MATIÈRES -->
-  <nav class="subjects-nav">
-    <div class="container">
-      <button class="subject-tab active" data-matiere="all">📊 Toutes les Matières</button>
-      <button class="subject-tab" data-matiere="Français LL">🇫🇷 Français</button>
-      <button class="subject-tab" data-matiere="Anglais AL">🇬🇧 Anglais</button>
-      <button class="subject-tab" data-matiere="Mathématiques">📐 Maths</button>
-      <button class="subject-tab" data-matiere="Sciences">🔬 Sciences</button>
-      <button class="subject-tab" data-matiere="IS">🌍 IS</button>
-      <button class="subject-tab" data-matiere="Arts">🎨 Arts</button>
-      <button class="subject-tab" data-matiere="Design">💡 Design</button>
-    </div>
-  </nav>
-
-  <!-- CONTENU PRINCIPAL -->
-  <main class="main-container">
-    <div class="container">
-      <div id="calendrier" class="calendar-grid">
-        <div class="loading-state">⏳ Chargement...</div>
-      </div>
-    </div>
-  </main>
-
-  <!-- MODAL EXPORT -->
-  <div id="modalExport" class="export-modal">
-    <div class="modal-box">
-      <div class="modal-header-bar">
-        <h2>📦 Options d'Export</h2>
-        <button class="close-button">&times;</button>
-      </div>
-      <div class="modal-content-area">
-        <button class="export-choice" data-type="zip">
-          <span class="choice-icon">📦</span>
-          <div class="choice-text">
-            <h3>ZIP - Toutes les Matières</h3>
-            <p>Un fichier par matière dans un ZIP</p>
-          </div>
-        </button>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <img src="https://lh3.googleusercontent.com/d/1lQ3Babrs3Wgv4rakVmkK0oCWcM0cTKPK" alt="Al Kawthar Logo" class="logo">
+            </div>
+            <div class="title-section">
+                <h1 class="main-title">Calendrier des Évaluations</h1>
+                <p class="subtitle">Kawthar International School - Année 2025-2026</p>
+            </div>
+            <div class="controls-section">
+                <select id="classeSelect" class="select-classe">
+                    <option value="">Sélectionner une classe</option>
+                    <option value="PEI1">PEI 1</option>
+                    <option value="PEI2">PEI 2</option>
+                    <option value="PEI3">PEI 3</option>
+                    <option value="PEI4">PEI 4</option>
+                    <option value="PEI5">PEI 5</option>
+                    <option value="DP1">DP 1</option>
+                    <option value="DP2">DP 2</option>
+                </select>
+                <button id="exportBtn" class="btn-export">📥 Exporter</button>
+            </div>
+        </div>
         
-        <button class="export-choice" data-type="matiere">
-          <span class="choice-icon">📄</span>
-          <div class="choice-text">
-            <h3>Matière Actuelle</h3>
-            <p>Exporter uniquement la matière sélectionnée</p>
-          </div>
-        </button>
-        
-        <button class="export-choice" data-type="complet">
-          <span class="choice-icon">📋</span>
-          <div class="choice-text">
-            <h3>Document Complet</h3>
-            <p>Toutes les matières en un seul fichier</p>
-          </div>
-        </button>
-      </div>
-    </div>
-  </div>
+        <!-- Légende -->
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color orientation"></span>
+                <span>Orientation</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color vacances"></span>
+                <span>Vacances</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color examens"></span>
+                <span>Examens</span>
+            </div>
+        </div>
+    </header>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="script.js?v=20251207FORCE"></script>
+    <!-- Navigation matières -->
+    <nav class="subjects-nav">
+        <button class="subject-tab active" data-matiere="Français LL">Français LL</button>
+        <button class="subject-tab" data-matiere="Anglais AL">Anglais AL</button>
+        <button class="subject-tab" data-matiere="Mathématiques">Mathématiques</button>
+        <button class="subject-tab" data-matiere="Sciences">Sciences</button>
+        <button class="subject-tab" data-matiere="IS">Individus & Sociétés</button>
+        <button class="subject-tab" data-matiere="Arts">Arts</button>
+        <button class="subject-tab" data-matiere="Design">Design</button>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <div id="calendrier" class="calendar-grid">
+            <!-- Le calendrier sera généré ici par JavaScript -->
+        </div>
+    </main>
+
+    <!-- Formulaire d'ajout -->
+    <div id="formAjout" class="form-container" style="display: none;">
+        <div class="form-content">
+            <h3>Ajouter une évaluation</h3>
+            <form id="evalForm">
+                <input type="hidden" id="semaineInput">
+                <input type="hidden" id="matiereInput">
+                
+                <div class="form-group">
+                    <label>Semaine :</label>
+                    <input type="text" id="semaineDisplay" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>Matière :</label>
+                    <input type="text" id="matiereDisplay" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="uniteInput">Unité :</label>
+                    <input type="text" id="uniteInput" placeholder="Ex: Unité 1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="critereInput">Critère :</label>
+                    <input type="text" id="critereInput" placeholder="Ex: A, B, C, D" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                    <button type="button" id="annulerBtn" class="btn btn-secondary">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Export -->
+    <div id="modalExport" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Options d'export</h3>
+            <div class="export-options">
+                <button id="exportZIP" class="export-btn">
+                    <span class="export-icon">📦</span>
+                    <span class="export-text">Export ZIP (toutes matières)</span>
+                </button>
+                <button id="exportMatiere" class="export-btn">
+                    <span class="export-icon">📄</span>
+                    <span class="export-text">Export matière actuelle</span>
+                </button>
+                <button id="exportComplet" class="export-btn">
+                    <span class="export-icon">📋</span>
+                    <span class="export-text">Export document complet</span>
+                </button>
+            </div>
+            <button id="fermerModal" class="btn btn-secondary">Fermer</button>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
 </body>
 </html>

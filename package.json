@@ -1,22 +1,19 @@
 {
-  "name": "calendrier-evaluations",
-  "version": "1.0.0",
-  "description": "Calendrier des évaluations KIS déployé sur Vercel avec MongoDB.",
-  "main": "index.js",
+  "name": "ib-calender",
+  "version": "3.0.0",
+  "description": "Calendrier des Évaluations KIS - Application complète",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
   },
+  "keywords": ["calendar", "evaluations", "school", "kis"],
+  "author": "KIS",
+  "license": "MIT",
   "dependencies": {
-    "body-parser": "^2.2.0",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "mongoose": "^8.3.2"
-  },
-  "keywords": [
-    "vercel",
-    "express",
-    "mongodb"
-  ],
-  "author": "",
-  "license": "ISC"
+    "body-parser": "^2.2.1",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "mongoose": "^8.20.2"
+  }
 }

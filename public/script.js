@@ -1,560 +1,417 @@
-// ========================================
-// CALENDRIER KIS - JAVASCRIPT COMPLET
-// ========================================
+// ═══════════════════════════════════════════════════════════════
+// CALENDRIER DES ÉVALUATIONS KIS - JAVASCRIPT
+// ═══════════════════════════════════════════════════════════════
 
-console.log('🚀 Calendrier KIS - Initialisation...');
-
-// === CONFIGURATION ===
 const API_URL = '/api/evaluations';
-const MATIERES = ['Français LL', 'Anglais AL', 'Mathématiques', 'Sciences', 'IS', 'Arts', 'Design'];
 
-// === DONNÉES DES SEMAINES ===
-const SEMAINES = [
-  { id: 'S1', nom: 'Semaine 1', dates: 'Août 31 – Sep. 04', type: 'orientation', label: '🗓️ Orientation' },
-  { id: 'S2', nom: 'Semaine 2', dates: 'Sep. 07 – Sep. 11', type: 'normale' },
-  { id: 'S3', nom: 'Semaine 3', dates: 'Sep. 14 – Sep. 18', type: 'normale' },
-  { id: 'S4', nom: 'Semaine 4', dates: 'Sep. 21 – Sep. 25', type: 'normale' },
-  { id: 'S5', nom: 'Semaine 5', dates: 'Sep. 28 – Oct. 02', type: 'normale' },
-  { id: 'S6', nom: 'Semaine 6', dates: 'Oct. 05 – Oct. 09', type: 'normale' },
-  { id: 'S7', nom: 'Semaine 7', dates: 'Oct. 12 – Oct. 16', type: 'normale' },
-  { id: 'S8', nom: 'Semaine 8', dates: 'Oct. 19 – Oct. 23', type: 'normale' },
-  { id: 'S9', nom: 'Semaine 9', dates: 'Oct. 26 – Oct. 30', type: 'normale' },
-  { id: 'S10', nom: 'Semaine 10', dates: 'Nov. 02 – Nov. 06', type: 'normale' },
-  { id: 'S11', nom: 'Semaine 11', dates: 'Nov. 09 – Nov. 13', type: 'normale' },
-  { id: 'S12', nom: 'Semaine 12', dates: 'Nov. 16 – Nov. 20', type: 'normale' },
-  { id: 'S13', nom: 'Vacances', dates: 'Nov. 23 – Nov. 27', type: 'vacances', label: '🏖️ Vacances' },
-  { id: 'S14', nom: 'Semaine 13', dates: 'Nov. 30 – Dec. 04', type: 'normale' },
-  { id: 'S15', nom: 'Semaine 14', dates: 'Dec. 07 – Dec. 11', type: 'normale' },
-  { id: 'S16', nom: 'Semaine 15', dates: 'Dec. 14 – Dec. 18', type: 'normale' },
-  { id: 'S17', nom: 'Examen Final', dates: 'Dec. 21 – Dec. 25', type: 'examen', label: '📝 Examen Final' },
-  { id: 'S18', nom: 'Examen Final', dates: 'Dec. 28 – Jan. 01', type: 'examen', label: '📝 Examen Final' },
-  { id: 'S19', nom: 'Examen Final', dates: 'Jan. 04 – Jan. 08', type: 'examen', label: '📝 Examen Final' },
-  { id: 'S20', nom: 'Vacances', dates: 'Jan. 11 – Jan. 15', type: 'vacances', label: '🏖️ Vacances' },
-  { id: 'S21', nom: 'Semaine 19', dates: 'Jan. 18 – Jan. 22', type: 'normale' },
-  { id: 'S22', nom: 'Semaine 20', dates: 'Jan. 25 – Jan. 29', type: 'normale' },
-  { id: 'S23', nom: 'Semaine 21', dates: 'Fev. 01 – Fev. 05', type: 'normale' },
-  { id: 'S24', nom: 'Semaine 22', dates: 'Fev. 08 – Fev. 12', type: 'normale' },
-  { id: 'S25', nom: 'Semaine 23', dates: 'Fev. 15 – Fev. 19', type: 'normale' },
-  { id: 'S26', nom: 'Semaine 24', dates: 'Fev. 22 – Fev. 26', type: 'normale' },
-  { id: 'S27', nom: 'Semaine 25', dates: 'Mars 01 – Mars 05', type: 'normale' },
-  { id: 'S28', nom: 'Eid-ul-Fitr', dates: 'Mars 08 – Mars 12', type: 'vacances', label: '🌙 Eid-ul-Fitr' },
-  { id: 'S29', nom: 'Eid-ul-Fitr', dates: 'Mars 15 – Mars 19', type: 'vacances', label: '🌙 Eid-ul-Fitr' },
-  { id: 'S30', nom: 'Eid-ul-Fitr', dates: 'Mars 22 – Mars 26', type: 'vacances', label: '🌙 Eid-ul-Fitr' },
-  { id: 'S31', nom: 'Semaine 26', dates: 'Mars 29 – Avril 02', type: 'normale' },
-  { id: 'S32', nom: 'Semaine 27', dates: 'Avril 05 – Avril 09', type: 'normale' },
-  { id: 'S33', nom: 'Évaluations', dates: 'Avril 12 – Avril 16', type: 'orientation', label: '✅ Évaluations' },
-  { id: 'S34', nom: 'Semaine 29', dates: 'Avril 19 – Avril 23', type: 'normale' },
-  { id: 'S35', nom: 'Semaine 30', dates: 'Avril 26 – Avril 30', type: 'normale' },
-  { id: 'S36', nom: 'Semaine 31', dates: 'Mai 03 – Mai 07', type: 'normale' },
-  { id: 'S37', nom: 'Semaine 32', dates: 'Mai 10 – Mai 14', type: 'normale' },
-  { id: 'S38', nom: 'Eid-ul-Adha', dates: 'Mai 17 – Mai 21', type: 'vacances', label: '🕌 Eid-ul-Adha' },
-  { id: 'S39', nom: 'Eid-ul-Adha', dates: 'Mai 24 – Mai 28', type: 'vacances', label: '🕌 Eid-ul-Adha' },
-  { id: 'S40', nom: 'Eid-ul-Adha', dates: 'Mai 31 – Juin 04', type: 'vacances', label: '🕌 Eid-ul-Adha' },
-  { id: 'S41', nom: 'Examen Final', dates: 'Juin 07 – Juin 11', type: 'examen', label: '📝 Examen Final' },
-  { id: 'S42', nom: 'Examen Final', dates: 'Juin 14 – Juin 18', type: 'examen', label: '📝 Examen Final' }
+// Configuration matières
+const MATIERES = [
+    'Français LL',
+    'Anglais AL',
+    'Mathématiques',
+    'Sciences',
+    'IS',
+    'Arts',
+    'Design'
 ];
 
-// === ÉTAT DE L'APPLICATION ===
-let state = {
-  classe: 'PEI1',
-  matiere: 'all',
-  evaluations: []
-};
+// Configuration semaines (39 semaines)
+const SEMAINES = [
+    { id: 'S1', label: 'Semaine 1', dates: '31 août - 6 sept', type: 'normale' },
+    { id: 'S2', label: 'Semaine 2', dates: '7 - 13 sept', type: 'normale' },
+    { id: 'S3', label: 'Semaine 3', dates: '14 - 20 sept', type: 'normale' },
+    { id: 'S4', label: 'Semaine 4', dates: '21 - 27 sept', type: 'orientation' },
+    { id: 'S5', label: 'Semaine 5', dates: '28 sept - 4 oct', type: 'normale' },
+    { id: 'S6', label: 'Semaine 6', dates: '5 - 11 oct', type: 'normale' },
+    { id: 'S7', label: 'Semaine 7', dates: '12 - 18 oct', type: 'normale' },
+    { id: 'S8', label: 'Semaine 8', dates: '19 - 25 oct', type: 'vacances' },
+    { id: 'S9', label: 'Semaine 9', dates: '26 oct - 1 nov', type: 'vacances' },
+    { id: 'S10', label: 'Semaine 10', dates: '2 - 8 nov', type: 'normale' },
+    { id: 'S11', label: 'Semaine 11', dates: '9 - 15 nov', type: 'normale' },
+    { id: 'S12', label: 'Semaine 12', dates: '16 - 22 nov', type: 'normale' },
+    { id: 'S13', label: 'Semaine 13', dates: '23 - 29 nov', type: 'normale' },
+    { id: 'S14', label: 'Semaine 14', dates: '30 nov - 6 déc', type: 'examens' },
+    { id: 'S15', label: 'Semaine 15', dates: '7 - 13 déc', type: 'examens' },
+    { id: 'S16', label: 'Semaine 16', dates: '14 - 20 déc', type: 'normale' },
+    { id: 'S17', label: 'Semaine 17', dates: '21 - 27 déc', type: 'vacances' },
+    { id: 'S18', label: 'Semaine 18', dates: '28 déc - 3 jan', type: 'vacances' },
+    { id: 'S19', label: 'Semaine 19', dates: '4 - 10 jan', type: 'normale' },
+    { id: 'S20', label: 'Semaine 20', dates: '11 - 17 jan', type: 'normale' },
+    { id: 'S21', label: 'Semaine 21', dates: '18 - 24 jan', type: 'normale' },
+    { id: 'S22', label: 'Semaine 22', dates: '25 - 31 jan', type: 'normale' },
+    { id: 'S23', label: 'Semaine 23', dates: '1 - 7 fév', type: 'normale' },
+    { id: 'S24', label: 'Semaine 24', dates: '8 - 14 fév', type: 'normale' },
+    { id: 'S25', label: 'Semaine 25', dates: '15 - 21 fév', type: 'vacances' },
+    { id: 'S26', label: 'Semaine 26', dates: '22 - 28 fév', type: 'vacances' },
+    { id: 'S27', label: 'Semaine 27', dates: '1 - 7 mars', type: 'normale' },
+    { id: 'S28', label: 'Semaine 28', dates: '8 - 14 mars', type: 'normale' },
+    { id: 'S29', label: 'Semaine 29', dates: '15 - 21 mars', type: 'normale' },
+    { id: 'S30', label: 'Semaine 30', dates: '22 - 28 mars', type: 'examens' },
+    { id: 'S31', label: 'Semaine 31', dates: '29 mars - 4 avr', type: 'examens' },
+    { id: 'S32', label: 'Semaine 32', dates: '5 - 11 avr', type: 'vacances' },
+    { id: 'S33', label: 'Semaine 33', dates: '12 - 18 avr', type: 'vacances' },
+    { id: 'S34', label: 'Semaine 34', dates: '19 - 25 avr', type: 'normale' },
+    { id: 'S35', label: 'Semaine 35', dates: '26 avr - 2 mai', type: 'normale' },
+    { id: 'S36', label: 'Semaine 36', dates: '3 - 9 mai', type: 'normale' },
+    { id: 'S37', label: 'Semaine 37', dates: '10 - 16 mai', type: 'normale' },
+    { id: 'S38', label: 'Semaine 38', dates: '17 - 23 mai', type: 'examens' },
+    { id: 'S39', label: 'Semaine 39', dates: '24 mai - 21 juin', type: 'examens' }
+];
 
-// === HELPERS ===
-function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-  return String(text).replace(/[&<>"']/g, m => map[m]);
-}
+// Variables globales
+let classeActuelle = '';
+let matiereActive = 'Français LL';
+let evaluations = [];
 
-function getMatiereClass(matiere) {
-  const map = {
-    'Français LL': 'francais',
-    'Anglais AL': 'anglais',
-    'Mathématiques': 'maths',
-    'Sciences': 'sciences',
-    'IS': 'is',
-    'Arts': 'arts',
-    'Design': 'design'
-  };
-  return map[matiere] || '';
-}
+// ═══════════════════════════════════════════════════════════════
+// INITIALISATION
+// ═══════════════════════════════════════════════════════════════
 
-function getMatiereEmoji(matiere) {
-  const map = {
-    'Français LL': '🇫🇷',
-    'Anglais AL': '🇬🇧',
-    'Mathématiques': '📐',
-    'Sciences': '🔬',
-    'IS': '🌍',
-    'Arts': '🎨',
-    'Design': '💡'
-  };
-  return map[matiere] || '📚';
-}
-
-function showToast(message, type = 'success') {
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// === AFFICHAGE DU CALENDRIER ===
-function renderCalendrier() {
-  const container = document.getElementById('calendrier');
-  if (!container) return;
-
-  const evalsFiltered = state.matiere === 'all'
-    ? state.evaluations
-    : state.evaluations.filter(e => e.matiere === state.matiere);
-
-  let html = '';
-
-  SEMAINES.forEach(semaine => {
-    if (semaine.type === 'vacances') {
-      html += `
-        <div class="semaine-card semaine-vacances">
-          <div class="semaine-header">
-            <h2 class="semaine-titre">${semaine.label || semaine.nom}</h2>
-            <span class="semaine-dates">${semaine.dates}</span>
-          </div>
-        </div>
-      `;
-    } else if (semaine.type === 'examen') {
-      html += `
-        <div class="semaine-card semaine-examen">
-          <div class="semaine-header">
-            <h2 class="semaine-titre">${semaine.label || semaine.nom}</h2>
-            <span class="semaine-dates">${semaine.dates}</span>
-          </div>
-        </div>
-      `;
-    } else if (semaine.type === 'orientation') {
-      html += `
-        <div class="semaine-card semaine-orientation">
-          <div class="semaine-header">
-            <h2 class="semaine-titre">${semaine.label || semaine.nom}</h2>
-            <span class="semaine-dates">${semaine.dates}</span>
-          </div>
-        </div>
-      `;
-    } else {
-      const evalsWeek = evalsFiltered.filter(e => e.semaine === semaine.id);
-
-      let evalsHtml = '';
-      evalsWeek.forEach(ev => {
-        evalsHtml += `
-          <div class="evaluation-item eval-${getMatiereClass(ev.matiere)}">
-            <div class="eval-matiere">${getMatiereEmoji(ev.matiere)} ${escapeHtml(ev.matiere)}</div>
-            <div class="eval-unite">📑 Unité: ${escapeHtml(ev.unite)}</div>
-            <div class="eval-critere">⭐ Critère: ${escapeHtml(ev.critere)}</div>
-            <button class="btn-delete" onclick="deleteEvaluation('${ev._id}')">×</button>
-          </div>
-        `;
-      });
-
-      let formHtml = '';
-      if (state.matiere === 'all') {
-        formHtml = `
-          <div class="form-ajout">
-            <div class="form-titre">✏️ Ajouter une évaluation</div>
-            <form onsubmit="addEvaluation(event, '${semaine.id}')">
-              <div class="form-group">
-                <label class="form-label">📖 Matière</label>
-                <select name="matiere" class="form-select" required>
-                  <option value="">-- Choisir --</option>
-                  ${MATIERES.map(m => `<option value="${m}">${m}</option>`).join('')}
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">📑 Unité / Thème</label>
-                <input name="unite" class="form-input" required placeholder="Nom de l'unité">
-              </div>
-              <div class="form-group">
-                <label class="form-label">⭐ Critère</label>
-                <select name="critere" class="form-select" required>
-                  <option value="">-- Choisir --</option>
-                  <option>A</option>
-                  <option>B</option>
-                  <option>C</option>
-                  <option>D</option>
-                </select>
-              </div>
-              <button type="submit" class="btn-submit">💾 Enregistrer</button>
-            </form>
-          </div>
-        `;
-      } else {
-        formHtml = `
-          <div class="form-ajout">
-            <div class="form-titre">✏️ ${getMatiereEmoji(state.matiere)} ${state.matiere}</div>
-            <form onsubmit="addEvaluation(event, '${semaine.id}')">
-              <input type="hidden" name="matiere" value="${state.matiere}">
-              <div class="form-group">
-                <label class="form-label">📑 Unité / Thème</label>
-                <input name="unite" class="form-input" required placeholder="Nom de l'unité">
-              </div>
-              <div class="form-group">
-                <label class="form-label">⭐ Critère</label>
-                <select name="critere" class="form-select" required>
-                  <option value="">-- Choisir --</option>
-                  <option>A</option>
-                  <option>B</option>
-                  <option>C</option>
-                  <option>D</option>
-                </select>
-              </div>
-              <button type="submit" class="btn-submit">💾 Enregistrer</button>
-            </form>
-          </div>
-        `;
-      }
-
-      html += `
-        <div class="semaine-card">
-          <div class="semaine-header">
-            <h2 class="semaine-titre">📅 ${semaine.nom}</h2>
-            <span class="semaine-dates">${semaine.dates}</span>
-          </div>
-          <div class="evaluations-list">${evalsHtml}</div>
-          ${formHtml}
-        </div>
-      `;
-    }
-  });
-
-  container.innerHTML = html;
-  console.log('✅ Calendrier rendu avec', evalsFiltered.length, 'évaluations');
-}
-
-// === CHARGEMENT DES ÉVALUATIONS ===
-async function loadEvaluations(classe) {
-  try {
-    console.log('📥 Chargement des évaluations pour', classe);
-    const response = await fetch(`${API_URL}?classe=${encodeURIComponent(classe)}`);
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Erreur inconnue' }));
-      console.error('❌ Erreur serveur:', errorData);
-      throw new Error(errorData.message || `Erreur ${response.status}`);
-    }
-    
-    state.evaluations = await response.json();
-    console.log(`✅ ${state.evaluations.length} évaluation(s) chargée(s) pour ${classe}`);
-    
-    if (state.evaluations.length === 0) {
-      console.log('ℹ️ Aucune évaluation trouvée pour cette classe');
-    }
-    
-    renderCalendrier();
-  } catch (error) {
-    console.error('❌ Erreur de chargement:', error);
-    showToast('❌ ' + error.message, 'error');
-    state.evaluations = [];
-    renderCalendrier();
-  }
-}
-
-// === AJOUTER UNE ÉVALUATION ===
-async function addEvaluation(event, semaineId) {
-  event.preventDefault();
-  const form = event.target;
-
-  const data = {
-    classe: state.classe,
-    semaine: semaineId,
-    matiere: form.matiere.value.trim(),
-    unite: form.unite.value.trim(),
-    critere: form.critere.value.trim()
-  };
-
-  if (!data.matiere || !data.unite || !data.critere) {
-    showToast('⚠️ Tous les champs sont requis', 'warning');
-    return;
-  }
-
-  try {
-    console.log('📤 Ajout évaluation:', data);
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('❌ Erreur serveur:', errorData);
-      throw new Error(errorData.message || 'Erreur serveur');
-    }
-
-    const newEval = await response.json();
-    console.log('✅ Évaluation créée avec ID:', newEval._id);
-    
-    state.evaluations.push(newEval);
-    form.reset();
-    renderCalendrier();
-    showToast('✅ Évaluation enregistrée dans MongoDB!', 'success');
-  } catch (error) {
-    console.error('❌ Erreur:', error);
-    showToast('❌ ' + error.message, 'error');
-  }
-}
-
-// === SUPPRIMER UNE ÉVALUATION ===
-async function deleteEvaluation(id) {
-  if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer cette évaluation ?\nCette action est irréversible.')) {
-    return;
-  }
-
-  try {
-    console.log('🗑️ Suppression de l\'évaluation:', id);
-    const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Erreur inconnue' }));
-      console.error('❌ Erreur serveur:', errorData);
-      throw new Error(errorData.message || 'Erreur de suppression');
-    }
-
-    const result = await response.json();
-    console.log('✅ Réponse serveur:', result);
-    
-    state.evaluations = state.evaluations.filter(e => e._id !== id);
-    renderCalendrier();
-    showToast('✅ Évaluation supprimée de MongoDB', 'success');
-  } catch (error) {
-    console.error('❌ Erreur de suppression:', error);
-    showToast('❌ ' + error.message, 'error');
-  }
-}
-
-// === GÉNÉRATION DOCUMENT WORD ===
-function generateWordDocument(evals, titre) {
-  if (!evals || evals.length === 0) {
-    console.warn('⚠️ Aucune évaluation à générer');
-    return '';
-  }
-
-  console.log(`📝 Génération document: ${titre} avec ${evals.length} évaluations`);
-  
-  const grouped = {};
-  evals.forEach(e => {
-    if (!grouped[e.semaine]) grouped[e.semaine] = [];
-    grouped[e.semaine].push(e);
-  });
-
-  const totalSemaines = Object.keys(grouped).length;
-  console.log(`📊 ${totalSemaines} semaine(s) avec évaluations`);
-
-  let html = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>${escapeHtml(titre)}</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 30px; line-height: 1.7; background: white; }
-    .header { text-align: center; border-bottom: 4px solid #003366; padding-bottom: 20px; margin-bottom: 30px; }
-    h1 { color: #003366; font-size: 32px; margin: 12px 0; font-weight: 900; }
-    .info { color: #666; margin: 8px 0; font-size: 14px; }
-    .stats { color: #0066CC; font-weight: bold; margin: 12px 0; }
-    .semaine { margin: 25px 0; border: 3px solid #EEE; border-radius: 12px; padding: 18px; page-break-inside: avoid; background: #FAFAFA; }
-    .semaine h2 { background: linear-gradient(135deg, #003366, #0066CC); color: white; padding: 12px; border-radius: 10px; margin: 0 0 18px; font-size: 20px; }
-    .evaluation { background: #FFFFFF; padding: 14px; margin: 12px 0; border-left: 5px solid #00CC66; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .evaluation p { margin: 6px 0; font-size: 14px; }
-    strong { color: #003366; font-weight: 800; }
-    .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #003366; color: #666; font-size: 12px; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>📅 ${escapeHtml(titre)}</h1>
-    <p class="info"><strong>Classe:</strong> ${state.classe} | <strong>Année:</strong> 2025-2026</p>
-    <p class="stats">Total: ${evals.length} évaluation(s) sur ${totalSemaines} semaine(s)</p>
-    <p class="info">Kawthar International School - Programme IB</p>
-  </div>`;
-
-  Object.keys(grouped).sort().forEach(sid => {
-    const sem = SEMAINES.find(s => s.id === sid);
-    const semTitre = sem ? `${sem.nom} (${sem.dates})` : sid;
-    const evalsCount = grouped[sid].length;
-
-    html += `<div class="semaine">
-      <h2>📍 ${escapeHtml(semTitre)} - ${evalsCount} évaluation(s)</h2>`;
-    
-    grouped[sid].forEach(e => {
-      html += `<div class="evaluation">
-        <p><strong>${getMatiereEmoji(e.matiere)} Matière:</strong> ${escapeHtml(e.matiere)}</p>
-        <p><strong>📑 Unité / Thème:</strong> ${escapeHtml(e.unite)}</p>
-        <p><strong>⭐ Critère:</strong> ${escapeHtml(e.critere)}</p>
-      </div>`;
-    });
-    html += '</div>';
-  });
-
-  const dateGen = new Date().toLocaleDateString('fr-FR', { 
-    year: 'numeric', month: 'long', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-
-  html += `
-  <div class="footer">
-    <p>Document généré le ${dateGen}</p>
-    <p>Kawthar International School © 2025-2026</p>
-  </div>
-</body></html>`;
-  
-  return html;
-}
-
-function downloadFile(content, filename) {
-  const blob = new Blob([content], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-// === EXPORT ZIP ===
-async function exportZIP() {
-  if (!state.evaluations.length) {
-    showToast('⚠️ Aucune évaluation à exporter pour ' + state.classe, 'warning');
-    return;
-  }
-
-  const zip = new JSZip();
-  let filesCount = 0;
-
-  MATIERES.forEach(matiere => {
-    const evals = state.evaluations.filter(e => e.matiere === matiere);
-    if (evals.length) {
-      const titre = `Calendrier ${matiere} - ${state.classe}`;
-      const content = generateWordDocument(evals, titre);
-      const filename = `${state.classe}_${matiere.replace(/\s+/g, '_')}.html`;
-      zip.file(filename, content);
-      filesCount++;
-      console.log(`📄 Ajout au ZIP: ${filename} (${evals.length} évaluations)`);
-    }
-  });
-
-  if (filesCount === 0) {
-    showToast('⚠️ Aucune matière avec évaluations à exporter', 'warning');
-    return;
-  }
-
-  try {
-    console.log(`📦 Génération ZIP avec ${filesCount} fichiers...`);
-    const blob = await zip.generateAsync({ type: 'blob' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    const dateStr = new Date().toISOString().split('T')[0];
-    link.download = `Calendrier_${state.classe}_Toutes_Matieres_${dateStr}.zip`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showToast(`📦 ZIP généré: ${filesCount} fichiers pour ${state.classe}!`, 'success');
-  } catch (error) {
-    console.error('❌ Erreur ZIP:', error);
-    showToast('❌ Erreur de génération ZIP: ' + error.message, 'error');
-  }
-}
-
-// === EXPORT MATIÈRE ===
-function exportMatiere() {
-  if (state.matiere === 'all') {
-    showToast('⚠️ Sélectionnez une matière spécifique dans les onglets', 'warning');
-    return;
-  }
-
-  const evals = state.evaluations.filter(e => e.matiere === state.matiere);
-  if (!evals.length) {
-    showToast(`⚠️ Aucune évaluation pour ${state.matiere}`, 'warning');
-    return;
-  }
-
-  console.log(`📄 Export de ${evals.length} évaluation(s) pour ${state.matiere}`);
-  const content = generateWordDocument(evals, `Calendrier ${state.matiere} - ${state.classe}`);
-  const filename = `${state.classe}_${state.matiere.replace(/\s+/g, '_')}.html`;
-  downloadFile(content, filename);
-  showToast(`📄 Document ${state.matiere} généré!`, 'success');
-}
-
-// === EXPORT COMPLET ===
-function exportComplet() {
-  if (!state.evaluations.length) {
-    showToast('⚠️ Aucune évaluation à exporter pour ' + state.classe, 'warning');
-    return;
-  }
-
-  console.log(`📋 Export complet de ${state.evaluations.length} évaluation(s) pour ${state.classe}`);
-  const titre = `Calendrier Complet - ${state.classe} - Toutes Matières`;
-  const content = generateWordDocument(state.evaluations, titre);
-  const filename = `${state.classe}_Calendrier_Complet_${new Date().toISOString().split('T')[0]}.html`;
-  downloadFile(content, filename);
-  showToast(`📋 Document complet généré (${state.evaluations.length} évaluations)!`, 'success');
-}
-
-// === INITIALISATION ===
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🎯 Initialisation de l\'application...');
-
-  // Changement de classe
-  const selectClasse = document.getElementById('classeSelect');
-  selectClasse.addEventListener('change', () => {
-    state.classe = selectClasse.value;
-    console.log('🔄 Classe changée:', state.classe);
-    loadEvaluations(state.classe);
-  });
-
-  // Tabs matières
-  document.querySelectorAll('.subject-tab, .tab-matiere').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const matiere = tab.dataset.matiere;
-      state.matiere = matiere;
-      console.log('🔄 Matière changée:', matiere);
-      document.querySelectorAll('.subject-tab, .tab-matiere').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderCalendrier();
+    console.log('🚀 Initialisation Calendrier KIS');
+    
+    // Écouteurs d'événements
+    document.getElementById('classeSelect').addEventListener('change', onClasseChange);
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        if (!classeActuelle) {
+            showToast('Veuillez sélectionner une classe', 'warning');
+            return;
+        }
+        document.getElementById('modalExport').style.display = 'flex';
     });
-  });
-
-  // Modal export
-  const modal = document.getElementById('modalExport');
-  const btnExport = document.getElementById('btnExport');
-  const btnClose = modal.querySelector('.close-button, .btn-close');
-
-  btnExport.addEventListener('click', () => modal.classList.add('show'));
-  btnClose.addEventListener('click', () => modal.classList.remove('show'));
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.classList.remove('show');
-  });
-
-  // Options d'export
-  document.querySelectorAll('.export-choice, .export-option').forEach(option => {
-    option.addEventListener('click', () => {
-      modal.classList.remove('show');
-      const type = option.dataset.type;
-      console.log('📤 Export type:', type);
-      if (type === 'zip') exportZIP();
-      else if (type === 'matiere') exportMatiere();
-      else if (type === 'complet') exportComplet();
+    
+    // Tabs matières
+    document.querySelectorAll('.subject-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            matiereActive = tab.getAttribute('data-matiere');
+            renderCalendrier();
+        });
     });
-  });
-
-  // Chargement initial
-  loadEvaluations(state.classe);
-  console.log('✅ Application initialisée!');
+    
+    // Formulaire ajout
+    document.getElementById('evalForm').addEventListener('submit', onSubmitEvaluation);
+    document.getElementById('annulerBtn').addEventListener('click', () => {
+        document.getElementById('formAjout').style.display = 'none';
+    });
+    
+    // Modal export
+    document.getElementById('fermerModal').addEventListener('click', () => {
+        document.getElementById('modalExport').style.display = 'none';
+    });
+    document.getElementById('exportZIP').addEventListener('click', exportZIP);
+    document.getElementById('exportMatiere').addEventListener('click', exportMatiere);
+    document.getElementById('exportComplet').addEventListener('click', exportComplet);
+    
+    console.log('✅ Initialisation terminée');
 });
 
-// Exposer les fonctions globalement
-window.addEvaluation = addEvaluation;
-window.deleteEvaluation = deleteEvaluation;
+// ═══════════════════════════════════════════════════════════════
+// GESTION CLASSE
+// ═══════════════════════════════════════════════════════════════
 
-console.log('✅ Script chargé avec succès!');
+function onClasseChange(e) {
+    classeActuelle = e.target.value;
+    console.log('📌 Classe sélectionnée:', classeActuelle);
+    
+    if (classeActuelle) {
+        loadEvaluations();
+    } else {
+        evaluations = [];
+        renderCalendrier();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API - CHARGER ÉVALUATIONS
+// ═══════════════════════════════════════════════════════════════
+
+async function loadEvaluations() {
+    try {
+        console.log(`📥 Chargement évaluations pour ${classeActuelle}...`);
+        
+        const response = await fetch(`${API_URL}?classe=${classeActuelle}`);
+        
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP ${response.status}`);
+        }
+        
+        evaluations = await response.json();
+        console.log(`✅ ${evaluations.length} évaluation(s) chargée(s)`);
+        
+        renderCalendrier();
+        showToast(`${evaluations.length} évaluation(s) chargée(s)`, 'success');
+    } catch (error) {
+        console.error('❌ Erreur chargement:', error);
+        showToast('Erreur lors du chargement des évaluations', 'error');
+        evaluations = [];
+        renderCalendrier();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API - AJOUTER ÉVALUATION
+// ═══════════════════════════════════════════════════════════════
+
+async function onSubmitEvaluation(e) {
+    e.preventDefault();
+    
+    const semaine = document.getElementById('semaineInput').value;
+    const matiere = document.getElementById('matiereInput').value;
+    const unite = document.getElementById('uniteInput').value.trim();
+    const critere = document.getElementById('critereInput').value.trim();
+    
+    if (!unite || !critere) {
+        showToast('Veuillez remplir tous les champs', 'warning');
+        return;
+    }
+    
+    try {
+        console.log(`📤 Ajout évaluation: ${classeActuelle} - ${semaine} - ${matiere}`);
+        
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                classe: classeActuelle,
+                semaine,
+                matiere,
+                unite,
+                critere
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `Erreur HTTP ${response.status}`);
+        }
+        
+        const newEval = await response.json();
+        console.log('✅ Évaluation ajoutée:', newEval._id);
+        
+        evaluations.push(newEval);
+        renderCalendrier();
+        
+        document.getElementById('formAjout').style.display = 'none';
+        document.getElementById('evalForm').reset();
+        
+        showToast('Évaluation ajoutée avec succès !', 'success');
+    } catch (error) {
+        console.error('❌ Erreur ajout:', error);
+        showToast('Erreur lors de l\'ajout: ' + error.message, 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API - SUPPRIMER ÉVALUATION
+// ═══════════════════════════════════════════════════════════════
+
+async function deleteEvaluation(id) {
+    if (!confirm('Supprimer cette évaluation ?')) return;
+    
+    try {
+        console.log(`🗑️  Suppression évaluation: ${id}`);
+        
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `Erreur HTTP ${response.status}`);
+        }
+        
+        console.log('✅ Évaluation supprimée');
+        
+        evaluations = evaluations.filter(e => e._id !== id);
+        renderCalendrier();
+        
+        showToast('Évaluation supprimée', 'success');
+    } catch (error) {
+        console.error('❌ Erreur suppression:', error);
+        showToast('Erreur lors de la suppression: ' + error.message, 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDU CALENDRIER
+// ═══════════════════════════════════════════════════════════════
+
+function renderCalendrier() {
+    const container = document.getElementById('calendrier');
+    
+    if (!classeActuelle) {
+        container.innerHTML = '<div class="empty-message">Veuillez sélectionner une classe</div>';
+        return;
+    }
+    
+    // Filtrer par matière active
+    const evalsFiltered = evaluations.filter(e => e.matiere === matiereActive);
+    
+    let html = '';
+    
+    SEMAINES.forEach(semaine => {
+        const evalsForWeek = evalsFiltered.filter(e => e.semaine === semaine.id);
+        
+        html += `
+            <div class="week-card ${semaine.type}">
+                <div class="week-header">
+                    <div>
+                        <div class="week-title">${semaine.label}</div>
+                        <div class="week-dates">${semaine.dates}</div>
+                    </div>
+                    ${semaine.type === 'normale' || semaine.type === 'orientation' ? 
+                        `<button class="btn-add" onclick="openFormAjout('${semaine.id}', '${matiereActive}')">+</button>` : 
+                        ''}
+                </div>
+                <div class="evaluations-list">
+                    ${evalsForWeek.length > 0 ? 
+                        evalsForWeek.map(e => `
+                            <div class="evaluation-item">
+                                <div class="evaluation-info">
+                                    <div class="evaluation-unite">${e.unite}</div>
+                                    <div class="evaluation-critere">Critère: ${e.critere}</div>
+                                </div>
+                                <button class="btn-delete" onclick="deleteEvaluation('${e._id}')">✕</button>
+                            </div>
+                        `).join('') : 
+                        ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FORMULAIRE AJOUT
+// ═══════════════════════════════════════════════════════════════
+
+function openFormAjout(semaine, matiere) {
+    const semaineObj = SEMAINES.find(s => s.id === semaine);
+    
+    document.getElementById('semaineInput').value = semaine;
+    document.getElementById('matiereInput').value = matiere;
+    document.getElementById('semaineDisplay').value = `${semaineObj.label} (${semaineObj.dates})`;
+    document.getElementById('matiereDisplay').value = matiere;
+    document.getElementById('uniteInput').value = '';
+    document.getElementById('critereInput').value = '';
+    
+    document.getElementById('formAjout').style.display = 'flex';
+    document.getElementById('uniteInput').focus();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT WORD (simplifié)
+// ═══════════════════════════════════════════════════════════════
+
+function exportMatiere() {
+    if (!classeActuelle) {
+        showToast('Sélectionnez une classe', 'warning');
+        return;
+    }
+    
+    const evalsMatiere = evaluations.filter(e => e.matiere === matiereActive);
+    
+    if (evalsMatiere.length === 0) {
+        showToast('Aucune évaluation pour cette matière', 'warning');
+        return;
+    }
+    
+    generateSimpleDoc(matiereActive, evalsMatiere);
+    document.getElementById('modalExport').style.display = 'none';
+}
+
+function exportComplet() {
+    if (!classeActuelle) {
+        showToast('Sélectionnez une classe', 'warning');
+        return;
+    }
+    
+    if (evaluations.length === 0) {
+        showToast('Aucune évaluation à exporter', 'warning');
+        return;
+    }
+    
+    generateSimpleDoc('TOUTES MATIÈRES', evaluations);
+    document.getElementById('modalExport').style.display = 'none';
+}
+
+function exportZIP() {
+    if (!classeActuelle) {
+        showToast('Sélectionnez une classe', 'warning');
+        return;
+    }
+    
+    showToast('Export ZIP : Génération en cours...', 'success');
+    
+    // Pour chaque matière, générer un document
+    MATIERES.forEach(matiere => {
+        const evalsMatiere = evaluations.filter(e => e.matiere === matiere);
+        if (evalsMatiere.length > 0) {
+            generateSimpleDoc(matiere, evalsMatiere);
+        }
+    });
+    
+    document.getElementById('modalExport').style.display = 'none';
+}
+
+function generateSimpleDoc(titre, evals) {
+    const timestamp = new Date().toLocaleString('fr-FR');
+    const filename = `Calendrier_${classeActuelle}_${titre.replace(/\s/g, '_')}_${Date.now()}.txt`;
+    
+    let content = `═══════════════════════════════════════════════════════════════
+CALENDRIER DES ÉVALUATIONS - KIS
+═══════════════════════════════════════════════════════════════
+
+Classe: ${classeActuelle}
+Matière: ${titre}
+Date d'export: ${timestamp}
+Total évaluations: ${evals.length}
+
+───────────────────────────────────────────────────────────────\n\n`;
+    
+    SEMAINES.forEach(semaine => {
+        const evalsWeek = evals.filter(e => e.semaine === semaine.id);
+        if (evalsWeek.length > 0) {
+            content += `${semaine.label} (${semaine.dates})\n`;
+            content += `─────────────────────────────────────\n`;
+            evalsWeek.forEach(e => {
+                content += `  • ${e.matiere} - ${e.unite} - Critère: ${e.critere}\n`;
+            });
+            content += `\n`;
+        }
+    });
+    
+    content += `\n═══════════════════════════════════════════════════════════════
+Généré le ${timestamp}
+Kawthar International School
+═══════════════════════════════════════════════════════════════`;
+    
+    // Télécharger le fichier
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showToast(`Document ${titre} exporté !`, 'success');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NOTIFICATIONS TOAST
+// ═══════════════════════════════════════════════════════════════
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast ${type} show`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
