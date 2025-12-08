@@ -27,8 +27,8 @@ app.delete('/api/evaluations/:id', (req, res) => {
 });
 app.post('/api/export', exportHandler);
 
-// Route par défaut
-app.get('/', (req, res) => {
+// Route API info
+app.get('/api', (req, res) => {
   res.json({
     name: 'Calendrier KIS API',
     version: '5.0.0',
