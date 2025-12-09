@@ -258,7 +258,12 @@ app.post('/api/export', async (req, res) => {
     const buffer = await Packer.toBuffer(doc);
     
     // Nom du fichier
-    const filename = `Calendrier_${classe}_${matiere.replace(/\s+/g, '_')}.docx`;
+    // Nom du fichier (sans caractères accentués pour Vercel)
+    const safeMatiere = matiere
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '_');
+    const filename = `Calendrier_${classe}_${safeMatiere}.docx`;
     
     // Envoyer le fichier
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
