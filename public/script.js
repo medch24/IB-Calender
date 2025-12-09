@@ -3,6 +3,9 @@
 // ═══════════════════════════════════════════════════════════════
 
 const API_URL = '/api/evaluations';
+const API_TIMEOUT = 15000; // 15 secondes
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 seconde
 
 // Configuration matières
 const MATIERES = [
@@ -127,11 +130,18 @@ function onClasseChange(e) {
 // API - CHARGER ÉVALUATIONS
 // ═══════════════════════════════════════════════════════════════
 
-async function loadEvaluations() {
+async function loadEvaluations(retryCount = 0) {
     try {
-        console.log(`📥 Chargement évaluations pour ${classeActuelle}...`);
+        console.log(`📥 Chargement évaluations pour ${classeActuelle}... (tentative ${retryCount + 1}/${MAX_RETRIES})`);
         
-        const response = await fetch(`${API_URL}?classe=${classeActuelle}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        
+        const response = await fetch(`${API_URL}?classe=${classeActuelle}`, {
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
             throw new Error(`Erreur HTTP ${response.status}`);
@@ -144,9 +154,17 @@ async function loadEvaluations() {
         showToast(`${evaluations.length} évaluation(s) chargée(s)`, 'success');
     } catch (error) {
         console.error('❌ Erreur chargement:', error);
-        showToast('Erreur lors du chargement des évaluations', 'error');
-        evaluations = [];
-        renderCalendrier();
+        
+        // Retry logic
+        if (retryCount < MAX_RETRIES - 1) {
+            console.log(`⏳ Nouvelle tentative dans ${RETRY_DELAY}ms...`);
+            showToast(`Erreur, nouvelle tentative... (${retryCount + 1}/${MAX_RETRIES})`, 'warning');
+            setTimeout(() => loadEvaluations(retryCount + 1), RETRY_DELAY);
+        } else {
+            showToast('Erreur lors du chargement des évaluations. Vérifiez votre connexion.', 'error');
+            evaluations = [];
+            renderCalendrier();
+        }
     }
 }
 
@@ -170,6 +188,9 @@ async function onSubmitEvaluation(e) {
     try {
         console.log(`📤 Ajout évaluation: ${classeActuelle} - ${semaine} - ${matiere}`);
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -179,8 +200,11 @@ async function onSubmitEvaluation(e) {
                 matiere,
                 unite,
                 critere
-            })
+            }),
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
             const error = await response.json();
@@ -188,7 +212,7 @@ async function onSubmitEvaluation(e) {
         }
         
         const newEval = await response.json();
-        console.log('✅ Évaluation ajoutée:', newEval._id);
+        console.log('✅ Évaluation ajoutée:', newEval.id);
         
         evaluations.push(newEval);
         renderCalendrier();
@@ -199,7 +223,11 @@ async function onSubmitEvaluation(e) {
         showToast('Évaluation ajoutée avec succès !', 'success');
     } catch (error) {
         console.error('❌ Erreur ajout:', error);
-        showToast('Erreur lors de l\'ajout: ' + error.message, 'error');
+        if (error.name === 'AbortError') {
+            showToast('Timeout: La requête a pris trop de temps. Vérifiez votre connexion.', 'error');
+        } else {
+            showToast('Erreur lors de l\'ajout: ' + error.message, 'error');
+        }
     }
 }
 
@@ -213,9 +241,15 @@ async function deleteEvaluation(id) {
     try {
         console.log(`🗑️  Suppression évaluation: ${id}`);
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        
         const response = await fetch(`${API_URL}/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
             const error = await response.json();
@@ -224,13 +258,17 @@ async function deleteEvaluation(id) {
         
         console.log('✅ Évaluation supprimée');
         
-        evaluations = evaluations.filter(e => e._id !== id);
+        evaluations = evaluations.filter(e => e.id !== id);
         renderCalendrier();
         
         showToast('Évaluation supprimée', 'success');
     } catch (error) {
         console.error('❌ Erreur suppression:', error);
-        showToast('Erreur lors de la suppression: ' + error.message, 'error');
+        if (error.name === 'AbortError') {
+            showToast('Timeout: La requête a pris trop de temps.', 'error');
+        } else {
+            showToast('Erreur lors de la suppression: ' + error.message, 'error');
+        }
     }
 }
 
@@ -273,7 +311,7 @@ function renderCalendrier() {
                                     <div class="evaluation-unite">${e.unite}</div>
                                     <div class="evaluation-critere">Critère: ${e.critere}</div>
                                 </div>
-                                <button class="btn-delete" onclick="deleteEvaluation('${e._id}')">✕</button>
+                                <button class="btn-delete" onclick="deleteEvaluation('${e.id}')">✕</button>
                             </div>
                         `).join('') : 
                         ''}
@@ -367,6 +405,9 @@ async function generateWordDoc(titre, evals) {
         
         showToast('Génération du document Word...', 'success');
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT * 2); // Timeout plus long pour export
+        
         const response = await fetch('/api/export', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -374,8 +415,11 @@ async function generateWordDoc(titre, evals) {
                 classe: classeActuelle,
                 matiere: titre,
                 evaluations: evals
-            })
+            }),
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
             const error = await response.json();
@@ -398,7 +442,11 @@ async function generateWordDoc(titre, evals) {
         
     } catch (error) {
         console.error('❌ Erreur export Word:', error);
-        showToast('Erreur lors de l\'export: ' + error.message, 'error');
+        if (error.name === 'AbortError') {
+            showToast('Timeout: La génération du document a pris trop de temps.', 'error');
+        } else {
+            showToast('Erreur lors de l\'export: ' + error.message, 'error');
+        }
     }
 }
 
