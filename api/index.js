@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
+const { Document, Packer, Paragraph, TextRun, Table, TableCell, TableRow, WidthType, AlignmentType, HeadingLevel, BorderStyle } = require('docx');
 
 const app = express();
 
@@ -41,23 +42,45 @@ app.get('/api/test', async (req, res) => {
   }
 });
 
-// GET /api/evaluations - Récupérer toutes les évaluations
+// GET /api/evaluations - Récupérer toutes les évaluations (avec filtre optionnel)
 app.get('/api/evaluations', async (req, res) => {
   try {
-    console.log('📥 GET /api/evaluations - Récupération des évaluations');
+    const { classe } = req.query;
     
-    const { data, error } = await supabase
-      .from('evaluations')
-      .select('*')
-      .order('id', { ascending: true });
-    
-    if (error) {
-      console.error('❌ Erreur Supabase:', error);
-      throw error;
+    if (classe) {
+      // Si classe est fournie en query parameter
+      console.log(`📥 GET /api/evaluations?classe=${classe}`);
+      
+      const { data, error } = await supabase
+        .from('evaluations')
+        .select('*')
+        .eq('classe', classe)
+        .order('semaine', { ascending: true });
+      
+      if (error) {
+        console.error('❌ Erreur Supabase:', error);
+        throw error;
+      }
+      
+      console.log(`✅ ${data.length} évaluations trouvées pour ${classe}`);
+      res.json(data);
+    } else {
+      // Récupérer toutes les évaluations
+      console.log('📥 GET /api/evaluations - Récupération de toutes les évaluations');
+      
+      const { data, error } = await supabase
+        .from('evaluations')
+        .select('*')
+        .order('id', { ascending: true });
+      
+      if (error) {
+        console.error('❌ Erreur Supabase:', error);
+        throw error;
+      }
+      
+      console.log(`✅ ${data.length} évaluations récupérées`);
+      res.json(data);
     }
-    
-    console.log(`✅ ${data.length} évaluations récupérées`);
-    res.json(data);
   } catch (error) {
     console.error('❌ Erreur chargement:', error);
     res.status(500).json({
@@ -214,6 +237,199 @@ app.delete('/api/evaluations/:id', async (req, res) => {
     });
   }
 });
+
+// POST /api/export - Exporter en Word
+app.post('/api/export', async (req, res) => {
+  try {
+    const { classe, matiere, evaluations } = req.body;
+    
+    console.log(`📝 POST /api/export - ${classe} - ${matiere} (${evaluations.length} évaluations)`);
+    
+    if (!classe || !matiere || !evaluations || evaluations.length === 0) {
+      return res.status(400).json({
+        error: 'Données invalides pour l\'export'
+      });
+    }
+    
+    // Générer le document Word
+    const doc = await generateWordDocument(classe, matiere, evaluations);
+    
+    // Convertir en buffer
+    const buffer = await Packer.toBuffer(doc);
+    
+    // Nom du fichier
+    const filename = `Calendrier_${classe}_${matiere.replace(/\s+/g, '_')}.docx`;
+    
+    // Envoyer le fichier
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
+    
+    console.log(`✅ Document Word généré: ${filename}`);
+  } catch (error) {
+    console.error('❌ Erreur export Word:', error);
+    res.status(500).json({
+      error: 'Erreur lors de l\'export Word',
+      details: error.message
+    });
+  }
+});
+
+// Fonction de génération du document Word
+async function generateWordDocument(classe, matiere, evaluations) {
+  // Grouper par semaine
+  const evalsByWeek = {};
+  evaluations.forEach(eval => {
+    if (!evalsByWeek[eval.semaine]) {
+      evalsByWeek[eval.semaine] = [];
+    }
+    evalsByWeek[eval.semaine].push(eval);
+  });
+  
+  // Trier les semaines
+  const sortedWeeks = Object.keys(evalsByWeek).sort((a, b) => {
+    const numA = parseInt(a.replace('S', ''));
+    const numB = parseInt(b.replace('S', ''));
+    return numA - numB;
+  });
+  
+  // Créer le document
+  const children = [];
+  
+  // En-tête
+  children.push(
+    new Paragraph({
+      text: 'Calendrier des Évaluations',
+      heading: HeadingLevel.TITLE,
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 200 }
+    }),
+    new Paragraph({
+      text: 'Kawthar International School - Année 2025-2026',
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 400 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `Classe: ${classe}`,
+          bold: true,
+          size: 28
+        })
+      ],
+      spacing: { after: 200 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `Matière: ${matiere}`,
+          bold: true,
+          size: 28
+        })
+      ],
+      spacing: { after: 400 }
+    })
+  );
+  
+  // Tableau des évaluations
+  const tableRows = [
+    // En-tête du tableau
+    new TableRow({
+      children: [
+        new TableCell({
+          children: [new Paragraph({ text: 'Semaine', bold: true })],
+          shading: { fill: '2E5C8A' },
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: 'Matière', bold: true })],
+          shading: { fill: '2E5C8A' },
+          width: { size: 25, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: 'Unité', bold: true })],
+          shading: { fill: '2E5C8A' },
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: 'Critère', bold: true })],
+          shading: { fill: '2E5C8A' },
+          width: { size: 35, type: WidthType.PERCENTAGE }
+        })
+      ]
+    })
+  ];
+  
+  // Ajouter les évaluations par semaine
+  sortedWeeks.forEach(semaine => {
+    const evals = evalsByWeek[semaine];
+    evals.forEach((eval, index) => {
+      tableRows.push(
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph(index === 0 ? semaine : '')],
+              verticalAlign: 'center'
+            }),
+            new TableCell({
+              children: [new Paragraph(eval.matiere || '')],
+              verticalAlign: 'center'
+            }),
+            new TableCell({
+              children: [new Paragraph(eval.unite || '')],
+              verticalAlign: 'center'
+            }),
+            new TableCell({
+              children: [new Paragraph(eval.critere || '')],
+              verticalAlign: 'center'
+            })
+          ]
+        })
+      );
+    });
+  });
+  
+  const table = new Table({
+    rows: tableRows,
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      bottom: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      left: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      right: { style: BorderStyle.SINGLE, size: 1, color: '000000' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' }
+    }
+  });
+  
+  children.push(table);
+  
+  // Pied de page
+  children.push(
+    new Paragraph({
+      text: '',
+      spacing: { before: 400 }
+    }),
+    new Paragraph({
+      text: `Total: ${evaluations.length} évaluation(s)`,
+      italics: true,
+      alignment: AlignmentType.RIGHT
+    }),
+    new Paragraph({
+      text: `Généré le ${new Date().toLocaleDateString('fr-FR')}`,
+      italics: true,
+      alignment: AlignmentType.RIGHT,
+      spacing: { before: 100 }
+    })
+  );
+  
+  return new Document({
+    sections: [{
+      properties: {},
+      children: children
+    }]
+  });
+}
 
 // Route de test
 app.get('/api', (req, res) => {
