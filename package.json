@@ -1,7 +1,7 @@
 {
   "name": "ib-calender",
   "version": "5.0.0",
-  "description": "Calendrier KIS - Supabase PostgreSQL",
+  "description": "Calendrier KIS - Supabase",
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
@@ -11,8 +11,7 @@
     "calendar",
     "evaluations",
     "school",
-    "kis",
-    "supabase"
+    "kis"
   ],
   "author": "KIS",
   "license": "MIT",
@@ -20,7 +19,6 @@
     "@supabase/supabase-js": "^2.39.0",
     "body-parser": "^2.2.1",
     "cors": "^2.8.5",
-    "docx": "^8.5.0",
     "dotenv": "^16.6.1",
     "express": "^4.22.1"
   }
