@@ -65,6 +65,7 @@ const SEMAINES = [
 let classeActuelle = '';
 let matiereActive = 'Français LL';
 let evaluations = [];
+let evaluationEnCoursModification = null; // Pour suivre l'évaluation en cours de modification
 
 // ═══════════════════════════════════════════════════════════════
 // INITIALISATION
@@ -93,10 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Formulaire ajout
+    // Formulaire ajout/modification
     document.getElementById('evalForm').addEventListener('submit', onSubmitEvaluation);
     document.getElementById('annulerBtn').addEventListener('click', () => {
         document.getElementById('formAjout').style.display = 'none';
+        evaluationEnCoursModification = null;
     });
     
     // Modal export
@@ -169,7 +171,7 @@ async function loadEvaluations(retryCount = 0) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// API - AJOUTER ÉVALUATION
+// API - AJOUTER OU MODIFIER ÉVALUATION
 // ═══════════════════════════════════════════════════════════════
 
 async function onSubmitEvaluation(e) {
@@ -185,8 +187,18 @@ async function onSubmitEvaluation(e) {
         return;
     }
     
+    if (evaluationEnCoursModification) {
+        // Mode modification
+        await updateEvaluation(evaluationEnCoursModification, { semaine, matiere, unite, critere });
+    } else {
+        // Mode ajout
+        await addEvaluation({ semaine, matiere, unite, critere });
+    }
+}
+
+async function addEvaluation(data) {
     try {
-        console.log(`📤 Ajout évaluation: ${classeActuelle} - ${semaine} - ${matiere}`);
+        console.log(`📤 Ajout évaluation: ${classeActuelle} - ${data.semaine} - ${data.matiere}`);
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
@@ -196,10 +208,10 @@ async function onSubmitEvaluation(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 classe: classeActuelle,
-                semaine,
-                matiere,
-                unite,
-                critere
+                semaine: data.semaine,
+                matiere: data.matiere,
+                unite: data.unite,
+                critere: data.critere
             }),
             signal: controller.signal
         });
@@ -219,6 +231,7 @@ async function onSubmitEvaluation(e) {
         
         document.getElementById('formAjout').style.display = 'none';
         document.getElementById('evalForm').reset();
+        evaluationEnCoursModification = null;
         
         showToast('Évaluation ajoutée avec succès !', 'success');
     } catch (error) {
@@ -227,6 +240,59 @@ async function onSubmitEvaluation(e) {
             showToast('Timeout: La requête a pris trop de temps. Vérifiez votre connexion.', 'error');
         } else {
             showToast('Erreur lors de l\'ajout: ' + error.message, 'error');
+        }
+    }
+}
+
+async function updateEvaluation(id, data) {
+    try {
+        console.log(`📝 Modification évaluation: ${id}`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                classe: classeActuelle,
+                semaine: data.semaine,
+                matiere: data.matiere,
+                unite: data.unite,
+                critere: data.critere
+            }),
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `Erreur HTTP ${response.status}`);
+        }
+        
+        const updatedEval = await response.json();
+        console.log('✅ Évaluation modifiée:', updatedEval.id);
+        
+        // Mettre à jour dans le tableau local
+        const index = evaluations.findIndex(e => e.id === id);
+        if (index !== -1) {
+            evaluations[index] = updatedEval;
+        }
+        
+        renderCalendrier();
+        
+        document.getElementById('formAjout').style.display = 'none';
+        document.getElementById('evalForm').reset();
+        evaluationEnCoursModification = null;
+        
+        showToast('Évaluation modifiée avec succès !', 'success');
+    } catch (error) {
+        console.error('❌ Erreur modification:', error);
+        if (error.name === 'AbortError') {
+            showToast('Timeout: La requête a pris trop de temps. Vérifiez votre connexion.', 'error');
+        } else {
+            showToast('Erreur lors de la modification: ' + error.message, 'error');
         }
     }
 }
@@ -311,7 +377,10 @@ function renderCalendrier() {
                                     <div class="evaluation-unite">${e.unite}</div>
                                     <div class="evaluation-critere">Critère: ${e.critere}</div>
                                 </div>
-                                <button class="btn-delete" onclick="deleteEvaluation('${e.id}')">✕</button>
+                                <div class="evaluation-actions">
+                                    <button class="btn-edit" onclick="editEvaluation('${e.id}')" title="Modifier">✏️</button>
+                                    <button class="btn-delete" onclick="deleteEvaluation('${e.id}')" title="Supprimer">✕</button>
+                                </div>
                             </div>
                         `).join('') : 
                         ''}
@@ -324,11 +393,13 @@ function renderCalendrier() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// FORMULAIRE AJOUT
+// FORMULAIRE AJOUT / MODIFICATION
 // ═══════════════════════════════════════════════════════════════
 
 function openFormAjout(semaine, matiere) {
     const semaineObj = SEMAINES.find(s => s.id === semaine);
+    
+    evaluationEnCoursModification = null;
     
     document.getElementById('semaineInput').value = semaine;
     document.getElementById('matiereInput').value = matiere;
@@ -336,6 +407,41 @@ function openFormAjout(semaine, matiere) {
     document.getElementById('matiereDisplay').value = matiere;
     document.getElementById('uniteInput').value = '';
     document.getElementById('critereInput').value = '';
+    
+    // Mettre à jour le titre du formulaire
+    document.querySelector('#formAjout h3').textContent = 'Ajouter une évaluation';
+    
+    // Mettre à jour le texte du bouton
+    document.querySelector('#evalForm button[type="submit"]').textContent = 'Ajouter';
+    
+    document.getElementById('formAjout').style.display = 'flex';
+    document.getElementById('uniteInput').focus();
+}
+
+function editEvaluation(id) {
+    const evaluation = evaluations.find(e => e.id === id);
+    
+    if (!evaluation) {
+        showToast('Évaluation introuvable', 'error');
+        return;
+    }
+    
+    evaluationEnCoursModification = id;
+    
+    const semaineObj = SEMAINES.find(s => s.id === evaluation.semaine);
+    
+    document.getElementById('semaineInput').value = evaluation.semaine;
+    document.getElementById('matiereInput').value = evaluation.matiere;
+    document.getElementById('semaineDisplay').value = `${semaineObj.label} (${semaineObj.dates})`;
+    document.getElementById('matiereDisplay').value = evaluation.matiere;
+    document.getElementById('uniteInput').value = evaluation.unite;
+    document.getElementById('critereInput').value = evaluation.critere;
+    
+    // Mettre à jour le titre du formulaire
+    document.querySelector('#formAjout h3').textContent = 'Modifier l\'évaluation';
+    
+    // Mettre à jour le texte du bouton
+    document.querySelector('#evalForm button[type="submit"]').textContent = 'Modifier';
     
     document.getElementById('formAjout').style.display = 'flex';
     document.getElementById('uniteInput').focus();

@@ -424,6 +424,33 @@ body {
     color: #7F8C8D;
 }
 
+.evaluation-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, var(--orange-accent) 0%, #FF6B00 100%);
+    color: var(--blanc);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%);
+    transform: scale(1.15) rotate(-5deg);
+    box-shadow: var(--shadow-md);
+}
+
 .btn-delete {
     background: linear-gradient(135deg, var(--rouge-danger) 0%, #C82333 100%);
     color: var(--blanc);
