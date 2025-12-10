@@ -457,7 +457,12 @@ async function exportMatiere() {
         return;
     }
     
+    console.log('🔍 Export matière:', matiereActive);
+    console.log('📊 Toutes les évaluations:', evaluations);
+    
     const evalsMatiere = evaluations.filter(e => e.matiere === matiereActive);
+    
+    console.log('✅ Évaluations filtrées pour', matiereActive, ':', evalsMatiere);
     
     if (evalsMatiere.length === 0) {
         showToast('Aucune évaluation pour cette matière', 'warning');
@@ -507,7 +512,12 @@ async function exportZIP() {
 
 async function generateWordDoc(titre, evals) {
     try {
-        console.log(`📄 Génération Word : ${titre} (${evals.length} évaluations)`);
+        // Vérification et filtrage supplémentaire pour être sûr
+        const evalsFiltrees = evals.filter(e => e.matiere === titre || titre === 'TOUTES MATIÈRES');
+        
+        console.log(`📄 Génération Word : ${titre}`);
+        console.log(`📊 Nombre d'évaluations envoyées : ${evalsFiltrees.length}`);
+        console.log(`📋 Détails :`, evalsFiltrees);
         
         showToast('Génération du document Word...', 'success');
         
@@ -520,7 +530,7 @@ async function generateWordDoc(titre, evals) {
             body: JSON.stringify({
                 classe: classeActuelle,
                 matiere: titre,
-                evaluations: evals
+                evaluations: evalsFiltrees
             }),
             signal: controller.signal
         });

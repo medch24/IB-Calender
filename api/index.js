@@ -243,7 +243,7 @@ app.post('/api/export', async (req, res) => {
   try {
     const { classe, matiere, evaluations } = req.body;
     
-    console.log(`📝 POST /api/export - ${classe} - ${matiere} (${evaluations.length} évaluations)`);
+    console.log(`📝 POST /api/export - ${classe} - ${matiere} (${evaluations.length} évaluations reçues)`);
     
     if (!classe || !matiere || !evaluations || evaluations.length === 0) {
       return res.status(400).json({
@@ -251,8 +251,21 @@ app.post('/api/export', async (req, res) => {
       });
     }
     
+    // Filtrage sécurisé côté backend
+    const evalsFiltrees = matiere === 'TOUTES MATIÈRES' 
+      ? evaluations 
+      : evaluations.filter(e => e.matiere === matiere);
+    
+    console.log(`✅ ${evalsFiltrees.length} évaluations filtrées pour ${matiere}`);
+    
+    if (evalsFiltrees.length === 0) {
+      return res.status(400).json({
+        error: 'Aucune évaluation à exporter après filtrage'
+      });
+    }
+    
     // Générer le document Word
-    const doc = await generateWordDocument(classe, matiere, evaluations);
+    const doc = await generateWordDocument(classe, matiere, evalsFiltrees);
     
     // Convertir en buffer
     const buffer = await Packer.toBuffer(doc);
