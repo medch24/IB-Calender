@@ -324,7 +324,7 @@ async function deleteEvaluation(id) {
         
         console.log('✅ Évaluation supprimée');
         
-        evaluations = evaluations.filter(e => e.id !== id);
+        evaluations = evaluations.filter(e => e.id != id);
         renderCalendrier();
         
         showToast('Évaluation supprimée', 'success');
@@ -378,8 +378,8 @@ function renderCalendrier() {
                                     <div class="evaluation-critere">Critère: ${e.critere}</div>
                                 </div>
                                 <div class="evaluation-actions">
-                                    <button class="btn-edit" onclick="editEvaluation('${e.id}')" title="Modifier">✏️</button>
-                                    <button class="btn-delete" onclick="deleteEvaluation('${e.id}')" title="Supprimer">✕</button>
+                                    <button class="btn-edit" onclick="editEvaluation(${e.id})" title="Modifier">✏️</button>
+                                    <button class="btn-delete" onclick="deleteEvaluation(${e.id})" title="Supprimer">✕</button>
                                 </div>
                             </div>
                         `).join('') : 

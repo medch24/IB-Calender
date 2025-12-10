@@ -68,7 +68,7 @@ body {
 .header {
     background: linear-gradient(135deg, var(--bleu-kawthar) 0%, var(--bleu-clair) 100%);
     border-bottom: 3px solid var(--orange-accent);
-    padding: 25px 20px;
+    padding: 15px 20px;
     box-shadow: var(--shadow-lg);
     animation: fadeIn 0.6s ease-out;
 }
@@ -88,10 +88,13 @@ body {
 }
 
 .logo {
-    width: 180px;
-    height: auto;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
     transition: transform 0.3s ease;
+    border: 3px solid var(--blanc);
 }
 
 .logo:hover {
@@ -105,16 +108,16 @@ body {
 }
 
 .main-title {
-    font-size: 2.2em;
+    font-size: 1.6em;
     color: var(--blanc);
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     animation: fadeIn 0.8s ease-out;
 }
 
 .subtitle {
-    font-size: 1.1em;
+    font-size: 0.9em;
     color: #E3F2FD;
     font-weight: 300;
     animation: fadeIn 1s ease-out;
@@ -180,9 +183,9 @@ body {
 /* Légende */
 .legend {
     max-width: 1400px;
-    margin: 20px auto 0;
+    margin: 12px auto 0;
     display: flex;
-    gap: 30px;
+    gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
 }
@@ -190,12 +193,12 @@ body {
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 14px;
+    gap: 8px;
+    font-size: 12px;
     color: var(--blanc);
     background: rgba(255, 255, 255, 0.2);
-    padding: 8px 16px;
-    border-radius: 20px;
+    padding: 6px 12px;
+    border-radius: 15px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
 }
@@ -206,10 +209,10 @@ body {
 }
 
 .legend-color {
-    width: 35px;
-    height: 22px;
+    width: 28px;
+    height: 18px;
     border: 2px solid var(--blanc);
-    border-radius: 6px;
+    border-radius: 5px;
     box-shadow: var(--shadow-sm);
 }
 
