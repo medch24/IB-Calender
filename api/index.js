@@ -238,6 +238,37 @@ app.delete('/api/evaluations/:id', async (req, res) => {
   }
 });
 
+// DELETE /api/evaluations/classe/:classe - Supprimer TOUTES les évaluations d'une classe
+app.delete('/api/evaluations/classe/:classe', async (req, res) => {
+  try {
+    const { classe } = req.params;
+    console.log(`🗑️🗑️🗑️ DELETE TOUTES les évaluations de ${classe}`);
+    
+    const { data, error } = await supabase
+      .from('evaluations')
+      .delete()
+      .eq('classe', classe)
+      .select();
+    
+    if (error) {
+      console.error('❌ Erreur Supabase:', error);
+      throw error;
+    }
+    
+    console.log(`✅ ${data.length} évaluations supprimées pour ${classe}`);
+    res.json({ 
+      message: `${data.length} évaluation(s) supprimée(s) avec succès`,
+      count: data.length
+    });
+  } catch (error) {
+    console.error('❌ Erreur suppression en masse:', error);
+    res.status(500).json({
+      error: 'Erreur lors de la suppression des évaluations',
+      details: error.message
+    });
+  }
+});
+
 // POST /api/export - Exporter en Word
 app.post('/api/export', async (req, res) => {
   try {

@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Écouteurs d'événements
     document.getElementById('classeSelect').addEventListener('change', onClasseChange);
+    document.getElementById('deleteAllBtn').addEventListener('click', deleteAllEvaluations);
     document.getElementById('exportBtn').addEventListener('click', () => {
         if (!classeActuelle) {
             showToast('Veuillez sélectionner une classe', 'warning');
@@ -334,6 +335,69 @@ async function deleteEvaluation(id) {
             showToast('Timeout: La requête a pris trop de temps.', 'error');
         } else {
             showToast('Erreur lors de la suppression: ' + error.message, 'error');
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API - SUPPRIMER TOUTES LES ÉVALUATIONS D'UNE CLASSE
+// ═══════════════════════════════════════════════════════════════
+
+async function deleteAllEvaluations() {
+    if (!classeActuelle) {
+        showToast('Veuillez sélectionner une classe', 'warning');
+        return;
+    }
+    
+    const confirmation = confirm(
+        `⚠️ ATTENTION ⚠️\n\n` +
+        `Voulez-vous vraiment supprimer TOUTES les évaluations de ${classeActuelle} ?\n\n` +
+        `Cette action est IRRÉVERSIBLE !\n\n` +
+        `Nombre d'évaluations : ${evaluations.length}`
+    );
+    
+    if (!confirmation) return;
+    
+    // Double confirmation pour éviter les erreurs
+    const doubleConfirmation = confirm(
+        `Dernière confirmation !\n\n` +
+        `Êtes-vous ABSOLUMENT SÛR de vouloir supprimer les ${evaluations.length} évaluation(s) de ${classeActuelle} ?\n\n` +
+        `Cliquez sur OK pour SUPPRIMER DÉFINITIVEMENT`
+    );
+    
+    if (!doubleConfirmation) return;
+    
+    try {
+        console.log(`🗑️🗑️🗑️ Suppression de TOUTES les évaluations de ${classeActuelle}`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        
+        const response = await fetch(`${API_URL}/classe/${classeActuelle}`, {
+            method: 'DELETE',
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `Erreur HTTP ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log(`✅ ${result.count} évaluation(s) supprimée(s)`);
+        
+        evaluations = [];
+        renderCalendrier();
+        
+        showToast(`✅ ${result.count} évaluation(s) supprimée(s) de ${classeActuelle}`, 'success');
+    } catch (error) {
+        console.error('❌ Erreur suppression en masse:', error);
+        if (error.name === 'AbortError') {
+            showToast('Timeout: La requête a pris trop de temps.', 'error');
+        } else {
+            showToast('Erreur lors de la suppression : ' + error.message, 'error');
         }
     }
 }
