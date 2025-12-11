@@ -18,47 +18,47 @@ const MATIERES = [
     'Design'
 ];
 
-// Configuration semaines (39 semaines)
+// Configuration semaines (31 semaines) - Année scolaire 2025-2026
 const SEMAINES = [
-    { id: 'S1', label: 'Semaine 1', dates: '31 août - 6 sept', type: 'normale' },
-    { id: 'S2', label: 'Semaine 2', dates: '7 - 13 sept', type: 'normale' },
-    { id: 'S3', label: 'Semaine 3', dates: '14 - 20 sept', type: 'normale' },
-    { id: 'S4', label: 'Semaine 4', dates: '21 - 27 sept', type: 'orientation' },
-    { id: 'S5', label: 'Semaine 5', dates: '28 sept - 4 oct', type: 'normale' },
-    { id: 'S6', label: 'Semaine 6', dates: '5 - 11 oct', type: 'normale' },
-    { id: 'S7', label: 'Semaine 7', dates: '12 - 18 oct', type: 'normale' },
-    { id: 'S8', label: 'Semaine 8', dates: '19 - 25 oct', type: 'vacances' },
-    { id: 'S9', label: 'Semaine 9', dates: '26 oct - 1 nov', type: 'vacances' },
-    { id: 'S10', label: 'Semaine 10', dates: '2 - 8 nov', type: 'normale' },
-    { id: 'S11', label: 'Semaine 11', dates: '9 - 15 nov', type: 'normale' },
-    { id: 'S12', label: 'Semaine 12', dates: '16 - 22 nov', type: 'normale' },
-    { id: 'S13', label: 'Semaine 13', dates: '23 - 29 nov', type: 'normale' },
-    { id: 'S14', label: 'Semaine 14', dates: '30 nov - 6 déc', type: 'examens' },
-    { id: 'S15', label: 'Semaine 15', dates: '7 - 13 déc', type: 'examens' },
-    { id: 'S16', label: 'Semaine 16', dates: '14 - 20 déc', type: 'normale' },
-    { id: 'S17', label: 'Semaine 17', dates: '21 - 27 déc', type: 'vacances' },
-    { id: 'S18', label: 'Semaine 18', dates: '28 déc - 3 jan', type: 'vacances' },
-    { id: 'S19', label: 'Semaine 19', dates: '4 - 10 jan', type: 'normale' },
-    { id: 'S20', label: 'Semaine 20', dates: '11 - 17 jan', type: 'normale' },
-    { id: 'S21', label: 'Semaine 21', dates: '18 - 24 jan', type: 'normale' },
-    { id: 'S22', label: 'Semaine 22', dates: '25 - 31 jan', type: 'normale' },
-    { id: 'S23', label: 'Semaine 23', dates: '1 - 7 fév', type: 'normale' },
-    { id: 'S24', label: 'Semaine 24', dates: '8 - 14 fév', type: 'normale' },
-    { id: 'S25', label: 'Semaine 25', dates: '15 - 21 fév', type: 'vacances' },
-    { id: 'S26', label: 'Semaine 26', dates: '22 - 28 fév', type: 'vacances' },
-    { id: 'S27', label: 'Semaine 27', dates: '1 - 7 mars', type: 'normale' },
-    { id: 'S28', label: 'Semaine 28', dates: '8 - 14 mars', type: 'normale' },
-    { id: 'S29', label: 'Semaine 29', dates: '15 - 21 mars', type: 'normale' },
-    { id: 'S30', label: 'Semaine 30', dates: '22 - 28 mars', type: 'examens' },
-    { id: 'S31', label: 'Semaine 31', dates: '29 mars - 4 avr', type: 'examens' },
-    { id: 'S32', label: 'Semaine 32', dates: '5 - 11 avr', type: 'vacances' },
-    { id: 'S33', label: 'Semaine 33', dates: '12 - 18 avr', type: 'vacances' },
-    { id: 'S34', label: 'Semaine 34', dates: '19 - 25 avr', type: 'normale' },
-    { id: 'S35', label: 'Semaine 35', dates: '26 avr - 2 mai', type: 'normale' },
-    { id: 'S36', label: 'Semaine 36', dates: '3 - 9 mai', type: 'normale' },
-    { id: 'S37', label: 'Semaine 37', dates: '10 - 16 mai', type: 'normale' },
-    { id: 'S38', label: 'Semaine 38', dates: '17 - 23 mai', type: 'examens' },
-    { id: 'S39', label: 'Semaine 39', dates: '24 mai - 21 juin', type: 'examens' }
+    // SEMESTRE 1
+    { id: 'S1', label: 'Semaine 1', dates: '31 août - 4 sept', type: 'normale' },
+    { id: 'S2', label: 'Semaine 2', dates: '7 - 11 sept', type: 'normale' },
+    { id: 'S3', label: 'Semaine 3', dates: '14 - 18 sept', type: 'normale' },
+    { id: 'S4', label: 'Semaine 4', dates: '21 - 25 sept', type: 'normale' },
+    { id: 'S5', label: 'Semaine 5', dates: '28 sept - 2 oct', type: 'normale' },
+    { id: 'S6', label: 'Semaine 6', dates: '5 - 9 oct', type: 'examens' },
+    { id: 'S7', label: 'Semaine 7', dates: '12 - 16 oct', type: 'examens' },
+    { id: 'S8', label: 'Semaine 8', dates: '19 - 23 oct', type: 'examens' },
+    { id: 'S9', label: 'Semaine 9', dates: '26 - 30 oct', type: 'normale' },
+    { id: 'S10', label: 'Semaine 10', dates: '2 - 6 nov', type: 'normale' },
+    { id: 'S11', label: 'Semaine 11', dates: '9 - 13 nov', type: 'normale' },
+    { id: 'S12', label: 'Semaine 12', dates: '16 - 20 nov', type: 'normale' },
+    { id: 'S13', label: 'Semaine 13', dates: '23 - 27 nov', type: 'normale' },
+    { id: 'S14', label: 'Semaine 14', dates: '30 nov - 4 déc', type: 'normale' },
+    { id: 'S15', label: 'Semaine 15', dates: '7 - 11 déc', type: 'normale' },
+    { id: 'S16', label: 'Semaine 16', dates: '14 - 18 déc', type: 'normale' },
+    { id: 'S17', label: 'Semaine 17', dates: '21 - 25 déc', type: 'examens' },
+    { id: 'EF1', label: 'Examen Final 1', dates: '28 déc - 8 jan', type: 'examens' },
+    { id: 'VAC1', label: 'Vacances mi-année', dates: '11 - 15 jan', type: 'vacances' },
+    
+    // SEMESTRE 2
+    { id: 'S18', label: 'Semaine 18', dates: '18 - 22 jan', type: 'normale' },
+    { id: 'S19', label: 'Semaine 19', dates: '25 - 29 jan', type: 'normale' },
+    { id: 'S20', label: 'Semaine 20', dates: '1 - 5 fév', type: 'normale' },
+    { id: 'S21', label: 'Semaine 21', dates: '8 - 12 fév', type: 'normale' },
+    { id: 'S22', label: 'Semaine 22', dates: '15 - 19 fév', type: 'normale' },
+    { id: 'S23', label: 'Semaine 23', dates: '22 - 26 fév', type: 'normale' },
+    { id: 'S24', label: 'Semaine 24', dates: '1 - 5 mars', type: 'normale' },
+    { id: 'VAC2', label: 'Vacances Aïd Fitr', dates: '8 - 26 mars', type: 'vacances' },
+    { id: 'S25', label: 'Semaine 25', dates: '29 mars - 2 avr', type: 'examens' },
+    { id: 'S26', label: 'Semaine 26', dates: '5 - 9 avr', type: 'examens' },
+    { id: 'S27', label: 'Semaine 27', dates: '12 - 16 avr', type: 'examens' },
+    { id: 'S28', label: 'Semaine 28', dates: '19 - 23 avr', type: 'normale' },
+    { id: 'S29', label: 'Semaine 29', dates: '26 - 30 avr', type: 'normale' },
+    { id: 'S30', label: 'Semaine 30', dates: '3 - 7 mai', type: 'normale' },
+    { id: 'S31', label: 'Semaine 31', dates: '10 - 14 mai', type: 'normale' },
+    { id: 'VAC3', label: 'Vacances Aïd Adha', dates: '17 - 1 juin', type: 'vacances' },
+    { id: 'EF2', label: 'Examen Final 2', dates: '2 - 18 juin', type: 'examens' }
 ];
 
 // Variables globales
@@ -429,7 +429,7 @@ function renderCalendrier() {
                         <div class="week-title">${semaine.label}</div>
                         <div class="week-dates">${semaine.dates}</div>
                     </div>
-                    ${semaine.type === 'normale' || semaine.type === 'orientation' ? 
+                    ${semaine.type === 'normale' || semaine.type === 'examens' ? 
                         `<button class="btn-add" onclick="openFormAjout('${semaine.id}', '${matiereActive}')">+</button>` : 
                         ''}
                 </div>
